@@ -12,10 +12,16 @@ int main()
     //std::string path{"auto_211116.log"};
     std::filesystem::path path{"auto_211116.log"};
     std::ifstream file;
-    Getdata d;
-    d.data(); 
+    Getdate d;
+    const auto lst = {'y', 'm', 'd', ' ', 'H', ':', 'M', ':', 'S'};
+    
 
-  /*  while(true)
+    while(true)
+    {
+        std::cout << d.getdate(lst) << "\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+   while(true)
     {
             file.open(path, std::ios::ate);
            if(!file.is_open())
@@ -29,7 +35,7 @@ int main()
             }
             file.close();
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }*/
+    }
  
 
 }

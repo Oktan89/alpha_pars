@@ -1,19 +1,32 @@
 #pragma once
 #include <iostream>
+#include <string>
 #include <ctime>
 
-class Getdata
+class Getdate final
 {
     std::time_t time_now;
     std::tm* _tm{};
 
-public:
-    Getdata() : time_now(std::time(nullptr)), _tm(std::localtime(&time_now)){}
-    
-    void data() const
+    void update()
     {
+        time_now = std::time(nullptr);
+        _tm = std::localtime(&time_now);
+    }
 
-        std::cout << std::asctime(_tm);
-        std::cout << _tm->tm_year%100 << "\n";
+public:
+    Getdate() : time_now(std::time(nullptr)), _tm(std::localtime(&time_now)){}
+    
+    std::string getdate(std::initializer_list<char> lst);
+
+
+    int get_year() const
+    {
+        return _tm->tm_year%100;
+    }
+
+    const std::tm *get_tm_struct() const
+    {
+        return _tm;
     }
 };
