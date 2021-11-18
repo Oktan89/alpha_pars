@@ -1,4 +1,11 @@
 #include "getdate.h"
+
+void Getdate::update() // нужно предусмотреть много поточность
+{
+    time_now = std::time(nullptr);
+    _tm = std::localtime(&time_now);
+}
+
 // Получить сконфигурированную строку с датой и временем
 // hour- H
 // min - M
@@ -7,10 +14,10 @@
 // mon - m
 // day - d
 // exemple: {'H',':', 'M', ':', 'S'} return 22:01:36
-std::string Getdate::getdate(std::initializer_list<char> lst)
+std::string Getdate::getdate_time(std::initializer_list<char> lst)
 {
     std::string s_date{};
-    update();
+    update(); 
 
     for (auto i = lst.begin(); i != lst.end(); ++i)
     {
@@ -41,3 +48,25 @@ std::string Getdate::getdate(std::initializer_list<char> lst)
     }
     return s_date;
 }
+
+Getdate *Getdate::GetObject()
+{
+    std::lock_guard<std::mutex> loc(_m_date);
+
+    if(_date == nullptr)
+    {
+        std::cout<<"new\n";
+        _date = new Getdate();
+    } 
+    
+    return _date;
+}
+
+void Getdate::Destroy()
+{
+     std::cout<<"del\n";
+    delete _date;
+}
+
+Getdate * Getdate::_date = nullptr;
+std::mutex Getdate::_m_date;

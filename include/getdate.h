@@ -1,32 +1,35 @@
 #pragma once
 #include <iostream>
+#include <mutex>
 #include <string>
 #include <ctime>
 
-class Getdate final
+///Singleton
+class Getdate
 {
+    static Getdate *_date;
+    static std::mutex _m_date;
     std::time_t time_now;
     std::tm* _tm{};
 
-    void update()
-    {
-        time_now = std::time(nullptr);
-        _tm = std::localtime(&time_now);
-    }
-
-public:
+protected:
+    void update();
+    
     Getdate() : time_now(std::time(nullptr)), _tm(std::localtime(&time_now)){}
     
-    std::string getdate(std::initializer_list<char> lst);
+    ~Getdate(){}
 
+public:
+    
+    Getdate(const Getdate& other) = delete;
+    
+    Getdate &operator=(const Getdate&) = delete;
 
-    int get_year() const
-    {
-        return _tm->tm_year%100;
-    }
+    static Getdate *GetObject();
 
-    const std::tm *get_tm_struct() const
-    {
-        return _tm;
-    }
+    static void Destroy();
+
+    std::string getdate_time(std::initializer_list<char> lst);
+
 };
+

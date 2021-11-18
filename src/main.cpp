@@ -22,13 +22,17 @@ int main()
     
     std::filesystem::path path{"auto_211116.log"};
     std::ifstream file;
-    Getdate d;
+    //Getdate *d = Getdate::GetObject();
+
     const auto lst = {'y', 'm', 'd', ' ', 'H', ':', 'M', ':', 'S'};
     
-
     std::cout << "Старт..." << '\n';
-    std::cout << d.getdate(lst) << '\n';
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+        std::cout << Getdate::GetObject()->getdate_time(lst) << '\n';
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    
+    
     
     
    /* while(true)
@@ -46,5 +50,5 @@ int main()
             file.close();
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     } */
-
+   Getdate::Destroy();
 }
