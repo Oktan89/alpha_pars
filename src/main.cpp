@@ -22,7 +22,7 @@ int main()
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
     
-    while(true)
+  /*  while(true)
     {
             file.open(path, std::ios::ate);
            if(!file.is_open())
@@ -36,7 +36,7 @@ int main()
             }
             file.close();
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
+    }*/
  
 
 }
