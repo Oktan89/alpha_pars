@@ -4,25 +4,34 @@
 #include <chrono>
 #include <fstream>
 #include <filesystem>
+
+#if defined __windows__
+#include <clocale>
+#endif
+
 #include "getdate.h"
 
 
 int main()
 {
-    //std::string path{"auto_211116.log"};
+    #if defined (__windows__)
+    setlocale(LC_CTYPE, "");
+    #elif defined (__linux__)
+    setlocale(LC_CTYPE, "Russian_Russia.1251");
+    #endif
+    
     std::filesystem::path path{"auto_211116.log"};
     std::ifstream file;
     Getdate d;
     const auto lst = {'y', 'm', 'd', ' ', 'H', ':', 'M', ':', 'S'};
     
 
-    while(true)
-    {
-        std::cout << d.getdate(lst) << "\n";
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
+    std::cout << "Старт..." << '\n';
+    std::cout << d.getdate(lst) << '\n';
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     
-    while(true)
+    
+   /* while(true)
     {
             file.open(path, std::ios::ate);
            if(!file.is_open())
@@ -36,6 +45,6 @@ int main()
             }
             file.close();
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    } 
+    } */
 
 }
