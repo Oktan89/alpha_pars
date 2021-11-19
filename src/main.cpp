@@ -5,7 +5,7 @@
 #include <fstream>
 #include <filesystem>
 
-#if defined __windows__
+#if defined _WIN64
 #include <clocale>
 #endif
 
@@ -14,7 +14,7 @@
 
 int main()
 {
-    #if defined (__windows__)
+    #if defined _WIN64
     setlocale(LC_CTYPE, "");
     #elif defined (__linux__)
     setlocale(LC_CTYPE, "Russian_Russia.1251");
