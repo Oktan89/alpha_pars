@@ -25,7 +25,7 @@ message ("Compiler set options...")
         -Wold-style-cast
         -Woverloaded-virtual
         -Wredundant-decls
-        -Wsign-conversion
+        #-Wsign-conversion
         -Wsign-promo
         )
 else ()

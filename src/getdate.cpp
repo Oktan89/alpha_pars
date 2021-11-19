@@ -17,7 +17,7 @@ void Getdate::update() // нужно предусмотреть много по�
 std::string Getdate::getdate_time(std::initializer_list<char> lst)
 {
     std::string s_date{};
-    update(); 
+    update();
 
     for (auto i = lst.begin(); i != lst.end(); ++i)
     {
