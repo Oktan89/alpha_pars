@@ -1,6 +1,6 @@
 #include "getdate.h"
 
-void Getdate::update() // нужно предусмотреть много поточность
+void Getdate::update() // нужно предусмотреть многопоточность
 {
     time_now = std::time(nullptr);
     _tm = std::localtime(&time_now);

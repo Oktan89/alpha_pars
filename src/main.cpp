@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <algorithm>
 #include "getdate.h"
+#include "logreader.h"
 
 
 
@@ -22,41 +23,12 @@ int main()
 
         std::cout << Getdate::GetObject()->getdate_time(lst) << '\n';
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
     
-    
-    
-    std::streampos g = 0;
-    while(true)
+    Logreader logreader(path);
+    if(Logerstatus::FILE_OPEN_ERROR == logreader.start())
     {
-           file.open(path, std::ios::binary | std::ios::ate);
+        std::cout << "Error\n";
+    }
 
-           if(!file.is_open())
-            {
-                std::cout << "Error open file \n";
-            }
-            else
-            {
-                auto gnew = file.tellg();   
-                if(g < gnew)
-                {
-                    auto temp = gnew;
-                    gnew-= g;
-                    std::string str(gnew, '\0');
-                    file.seekg(g);
-                    file.read(&str[0], gnew);
-                    std::cout << str;
-                    g = temp;
-                }
-                else
-                {
-                    g = gnew;
-                }
-
-            }
-
-            file.close();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    } 
    Getdate::Destroy();
 }
