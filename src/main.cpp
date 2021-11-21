@@ -30,5 +30,5 @@ int main()
         std::cout << "Error\n";
     }
 
-   Getdate::Destroy();
+   //Getdate::Destroy();
 }
