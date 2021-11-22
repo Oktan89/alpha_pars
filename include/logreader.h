@@ -22,6 +22,6 @@ public:
 
     Logreader(const Logreader& other) = delete;
 
-    Logerstatus start();
+    Logerstatus start(int64_t timer_ms = 1000);
 
 };

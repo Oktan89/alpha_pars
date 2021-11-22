@@ -12,7 +12,7 @@
 
 int main()
 {
-    setlocale(LC_CTYPE,"Russian");//Так же требуется кодировка исходника Windows 1251 + в скосоле cmd шрифт Lucida console
+    setlocale(LC_CTYPE,"Russian");//пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Windows 1251 + пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ cmd пїЅпїЅпїЅпїЅпїЅ Lucida console
     
     std::filesystem::path path{"auto_211122.log"};
     std::ifstream file;
@@ -20,7 +20,7 @@ int main()
 
     const auto lst = {'y', 'm', 'd', ' ', 'H', ':', 'M', ':', 'S'};
     
-    std::cout << "Привет..." << '\n';
+    std::cout << "РўРµСЃС‚..." << '\n';
 
         std::cout << Getdate::GetObjectDate()->getdate_time(lst) << '\n';
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -31,5 +31,5 @@ int main()
         std::cout << "Error\n";
     }
 
-   Getdate::Destroy();
+   //Getdate::Destroy();
 }

@@ -21,10 +21,10 @@ Logreader::Logreader(const std::string &path) noexcept : _path(path)
     }
 }
 
-Logerstatus Logreader::start()
+Logerstatus Logreader::start(int64_t time_ms)
 {
     //Если файл неоткрывается или статус работы выключен то завершаем чтение
-    while ((_status != Logerstatus::LOG_FILE_OPEN_ERROR) || run)
+    while ((_status != Logerstatus::LOG_FILE_OPEN_ERROR) && run)
     {
         _file.open(_path, std::ios::binary | std::ios::ate);
 
@@ -44,6 +44,10 @@ Logerstatus Logreader::start()
                     std::cout << str;
                     _savepos = temp;
                 }
+                else
+                {
+                    _savepos = gnew; //Для случая если файл был усечен
+                }
                 _file.close();
                 _status = Logerstatus::LOG_FILE_CLOSE;
             }
@@ -51,7 +55,7 @@ Logerstatus Logreader::start()
             {
                 _status = Logerstatus::LOG_FILE_OPEN_ERROR;
             }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(time_ms));
     }
     return _status;
 }
