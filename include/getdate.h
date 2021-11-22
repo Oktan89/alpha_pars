@@ -25,7 +25,7 @@ public:
     
     Getdate &operator=(const Getdate&) = delete;
 
-    static Getdate *GetObject();
+    static Getdate *GetObjectDate();
 
     static void Destroy();
 

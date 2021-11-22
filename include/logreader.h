@@ -3,9 +3,9 @@
 
 enum class Logerstatus
 {
-    FILE_OPEN,
-    FILE_CLOSE,
-    FILE_OPEN_ERROR
+    LOG_FILE_OPEN,
+    LOG_FILE_CLOSE,
+    LOG_FILE_OPEN_ERROR
 };
 
 class Logreader
@@ -13,7 +13,7 @@ class Logreader
     std::streampos _savepos = 0;
     std::ifstream _file;
     const std::string _path;
-    Logerstatus _status{Logerstatus::FILE_CLOSE};
+    Logerstatus _status{Logerstatus::LOG_FILE_CLOSE};
     bool run{true};
 
 public:

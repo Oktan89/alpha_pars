@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0.0)
 set(CMAKE_CXX_STANDARD 17)
 
 project(Alpha_pars VERSION 0.1.0)
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
 if (CMAKE_COMPILER_IS_GNUCXX)
 message ("Compiler set options...")
 	add_compile_options(
@@ -25,7 +25,7 @@ message ("Compiler set options...")
         -Wold-style-cast
         -Woverloaded-virtual
         -Wredundant-decls
-        #-Wsign-conversion
+       # -Wsign-conversion
         -Wsign-promo
         )
 else ()

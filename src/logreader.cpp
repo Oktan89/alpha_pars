@@ -13,24 +13,24 @@ Logreader::Logreader(const std::string &path) noexcept : _path(path)
         //Если файл открыт, сохраняем позицию курсора конца файла
         _savepos = _file.tellg();
         _file.close();
-        _status = Logerstatus::FILE_CLOSE;
+        _status = Logerstatus::LOG_FILE_CLOSE;
     }
     else
     {
-        _status = Logerstatus::FILE_OPEN_ERROR;
+        _status = Logerstatus::LOG_FILE_OPEN_ERROR;
     }
 }
 
 Logerstatus Logreader::start()
 {
     //Если файл неоткрывается или статус работы выключен то завершаем чтение
-    while ((_status != Logerstatus::FILE_OPEN_ERROR) || run)
+    while ((_status != Logerstatus::LOG_FILE_OPEN_ERROR) || run)
     {
         _file.open(_path, std::ios::binary | std::ios::ate);
 
             if (_file.is_open())
             {
-                _status = Logerstatus::FILE_OPEN;
+                _status = Logerstatus::LOG_FILE_OPEN;
                 //читаем тикущюю позицию курсора в конце файла
                 auto gnew = _file.tellg();
                 //если сохраненая позиция меньше то нужно прочитать новую запись в отслеживаемом файле
@@ -45,11 +45,11 @@ Logerstatus Logreader::start()
                     _savepos = temp;
                 }
                 _file.close();
-                _status = Logerstatus::FILE_CLOSE;
+                _status = Logerstatus::LOG_FILE_CLOSE;
             }
             else
             {
-                _status = Logerstatus::FILE_OPEN_ERROR;
+                _status = Logerstatus::LOG_FILE_OPEN_ERROR;
             }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }

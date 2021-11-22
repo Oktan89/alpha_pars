@@ -49,7 +49,7 @@ std::string Getdate::getdate_time(std::initializer_list<char> lst)
     return s_date;
 }
 
-Getdate *Getdate::GetObject()
+Getdate *Getdate::GetObjectDate()
 {
     std::lock_guard<std::mutex> loc(_m_date);
 
