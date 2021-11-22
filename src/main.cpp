@@ -1,10 +1,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
-#include <chrono>
-#include <fstream>
 #include <filesystem>
-#include <algorithm>
 #include <clocale>
 #include "getdate.h"
 #include "logreader.h"
