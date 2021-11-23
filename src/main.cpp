@@ -9,9 +9,17 @@
 
 int main()
 {
-    setlocale(LC_CTYPE,"Russian");//��� �� ��������� ��������� ��������� Windows 1251 + � ������� cmd ����� Lucida console
-    
-    std::filesystem::path path{"auto_211122.log"};
+    setlocale(LC_CTYPE,"Russian");//пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Windows 1251 + пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ cmd пїЅпїЅпїЅпїЅпїЅ Lucida console
+    std::filesystem::path path{"/Alphacenter/logmtr"};
+    if(std::filesystem::exists(path))
+    {
+       for(auto &file : std::filesystem::directory_iterator(path))
+            std::cout << file.path().filename().string() << '\n';
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+
+    return 0;
+    /*std::filesystem::path path{"auto_211123.log"};
     std::ifstream file;
     
 
@@ -26,7 +34,7 @@ int main()
     if(Logerstatus::LOG_FILE_OPEN_ERROR == logreader.start())
     {
         std::cout << "Error\n";
-    }
+    }*/
 
    //Getdate::Destroy();
 }
