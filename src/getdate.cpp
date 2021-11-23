@@ -55,7 +55,6 @@ Getdate *Getdate::GetObjectDate()
 
     if(_date == nullptr)
     {
-        std::cout<<"new\n";
         _date = new Getdate();
     } 
     
@@ -64,7 +63,6 @@ Getdate *Getdate::GetObjectDate()
 
 void Getdate::Destroy()
 {
-     std::cout<<"del\n";
     delete _date;
 }
 
