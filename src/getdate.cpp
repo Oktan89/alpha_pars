@@ -1,8 +1,10 @@
+#include <chrono>
 #include "getdate.h"
 
 void Getdate::update() // нужно предусмотреть многопоточность
 {
-    time_now = std::time(nullptr);
+    time_now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+   //time_now = std::time(nullptr);
     _tm = std::localtime(&time_now);
 }
 

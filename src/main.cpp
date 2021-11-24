@@ -12,6 +12,7 @@ int main()
     setlocale(LC_CTYPE,"Russian");//пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Windows 1251 + пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ cmd пїЅпїЅпїЅпїЅпїЅ Lucida console
     
     std::filesystem::path path{"/Alphacenter/logsrv/auto_"+Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd'})+".log"};
+    
     if(std::filesystem::exists(path))
     {
         Logreader logreader(path.string());
