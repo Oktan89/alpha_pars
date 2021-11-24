@@ -3,7 +3,7 @@
 #include "logreader.h"
 
 
-Logreader::Logreader(const std::string &path) noexcept : _path(path)
+Logreader::Logreader(const std::filesystem::path &path) noexcept : _path(path)
 {
     //Открываем файл на чтение с позицией курсора на конец файла
     _file.open(_path, std::ios::binary | std::ios::ate);

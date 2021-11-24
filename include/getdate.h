@@ -2,7 +2,7 @@
 #include <iostream>
 #include <mutex>
 #include <string>
-#include <ctime>
+//#include <ctime>
 
 ///Singleton
 class Getdate

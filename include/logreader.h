@@ -1,4 +1,5 @@
 #pragma once
+#include <filesystem>
 #include <fstream>
 
 enum class Logerstatus
@@ -12,15 +13,15 @@ class Logreader
 {
     std::streampos _savepos = 0;
     std::ifstream _file;
-    const std::string _path;
+    std::filesystem::path _path;
     Logerstatus _status{Logerstatus::LOG_FILE_CLOSE};
     bool run{true};
 
 public:
 
-    Logreader(const std::string& path) noexcept; 
+    Logreader(const std::filesystem::path &path) noexcept; 
 
-    Logreader(const Logreader& other) = delete;
+    Logreader(const Logreader &other) = delete;
 
     Logerstatus start(int64_t timer_ms = 1000);
 
