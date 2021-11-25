@@ -22,14 +22,17 @@ Logreader::Logreader(const std::filesystem::path &path) noexcept : _path(path)
     }
 }
 
-Logerstatus Logreader::start(int64_t time_ms)
+Logerstatus Logreader::start(int64_t timer_ms)
 {
-    std::thread t = std::thread(&Logreader::thred_log_read, this);
-    t.detach();
-    
-    //Если файл неоткрывается или статус работы выключен то завершаем чтение
+    _log_thread = std::thread(&Logreader::thred_log_read, this, timer_ms);
+  
+    return _status;
+}
+
+void Logreader::thred_log_read(int64_t timer_ms)
+{
     while ((_status != Logerstatus::LOG_FILE_OPEN_ERROR) && run)
-    {run  = false;
+    {
         _file.open(_path, std::ios::binary | std::ios::ate);
 
             if (_file.is_open())
@@ -62,17 +65,22 @@ Logerstatus Logreader::start(int64_t time_ms)
             {
                 _status = Logerstatus::LOG_FILE_OPEN_ERROR;
             }
-        std::this_thread::sleep_for(std::chrono::milliseconds(time_ms));
+        std::this_thread::sleep_for(std::chrono::milliseconds(timer_ms));
     }
-    return _status;
 }
 
-void Logreader::thred_log_read()
+void Logreader::stop()
 {
-    while(run)
+    run = false;
+    if(_log_thread.joinable())
     {
-        std::cout << "Thread run\n";
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        
+        _log_thread.join();
+        std::cout << "thread stop\n";
     }
-     std::cout << "Thread exit\n";
+}
+
+Logreader::~Logreader()
+{
+    stop();
 }

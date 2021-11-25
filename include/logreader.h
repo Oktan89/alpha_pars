@@ -11,12 +11,14 @@ enum class Logerstatus
 
 class Logreader
 {
+private:
     std::streampos _savepos = 0;
     std::ifstream _file;
     std::filesystem::path _path;
     Logerstatus _status{Logerstatus::LOG_FILE_CLOSE};
+    std::thread _log_thread;
     bool run{true};
-    void thred_log_read();
+    void thred_log_read(int64_t timer_ms);
 
 public:
     
@@ -25,5 +27,9 @@ public:
     Logreader(const Logreader &other) = delete;
 
     Logerstatus start(int64_t timer_ms = 1000);
+
+    void stop();
+
+    ~Logreader();
 
 };
