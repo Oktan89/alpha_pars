@@ -24,8 +24,10 @@ Logreader::Logreader(const std::filesystem::path &path) noexcept : _path(path)
 
 Logerstatus Logreader::start(int64_t timer_ms)
 {
-    _log_thread = std::thread(&Logreader::thred_log_read, this, timer_ms);
-  
+    run = true;
+
+    _log_thread= std::thread(&Logreader::thred_log_read, this, timer_ms);
+    
     return _status;
 }
 
@@ -67,6 +69,7 @@ void Logreader::thred_log_read(int64_t timer_ms)
             }
         std::this_thread::sleep_for(std::chrono::milliseconds(timer_ms));
     }
+
 }
 
 void Logreader::stop()
@@ -74,7 +77,6 @@ void Logreader::stop()
     run = false;
     if(_log_thread.joinable())
     {
-        
         _log_thread.join();
         std::cout << "thread stop\n";
     }

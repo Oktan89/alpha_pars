@@ -1,5 +1,7 @@
 #pragma once
 #include <filesystem>
+#include <thread>
+#include <atomic>
 #include <fstream>
 
 enum class Logerstatus
@@ -17,7 +19,7 @@ private:
     std::filesystem::path _path;
     Logerstatus _status{Logerstatus::LOG_FILE_CLOSE};
     std::thread _log_thread;
-    bool run{true};
+    std::atomic<bool> run = false;
     void thred_log_read(int64_t timer_ms);
 
 public:

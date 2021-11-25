@@ -20,17 +20,19 @@ int main()
     #elif __linux__
         std::filesystem::path path{"auto_211116.log"};
     #endif
-
+    
+    Logreader logreader(path);
     if(std::filesystem::exists(path))
     {
-        Logreader logreader(path);
-        if(Logerstatus::LOG_FILE_OPEN_ERROR == logreader.start())
+        
+        Logerstatus st = logreader.start();
+        if(Logerstatus::LOG_FILE_OPEN_ERROR == st)
         {
             std::cout << "Error\n";
         }
         //logreader.stop();
     }
-    
+   
     std::cout << "Not dir" << std::endl;
     std::cout<< Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd', ' ', 'H','M','S'});
     Getdate::Destroy();
