@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 #include "logreader.h"
+#define DEBUG
 
 
 Logreader::Logreader(const std::filesystem::path &path) noexcept : _path(path)
@@ -23,9 +24,12 @@ Logreader::Logreader(const std::filesystem::path &path) noexcept : _path(path)
 
 Logerstatus Logreader::start(int64_t time_ms)
 {
+    std::thread t = std::thread(&Logreader::thred_log_read, this);
+    t.detach();
+    
     //Если файл неоткрывается или статус работы выключен то завершаем чтение
     while ((_status != Logerstatus::LOG_FILE_OPEN_ERROR) && run)
-    {
+    {run  = false;
         _file.open(_path, std::ios::binary | std::ios::ate);
 
             if (_file.is_open())
@@ -42,6 +46,9 @@ Logerstatus Logreader::start(int64_t time_ms)
                     _file.seekg(_savepos);
                     _file.read(&str[0], gnew);
                     std::cout << str;
+                    #ifdef DEBUG
+                        std::cout << "[--------------------------]\n";
+                    #endif
                     _savepos = temp;
                 }
                 else
@@ -58,4 +65,14 @@ Logerstatus Logreader::start(int64_t time_ms)
         std::this_thread::sleep_for(std::chrono::milliseconds(time_ms));
     }
     return _status;
+}
+
+void Logreader::thred_log_read()
+{
+    while(run)
+    {
+        std::cout << "Thread run\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
+     std::cout << "Thread exit\n";
 }

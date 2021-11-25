@@ -16,9 +16,10 @@ class Logreader
     std::filesystem::path _path;
     Logerstatus _status{Logerstatus::LOG_FILE_CLOSE};
     bool run{true};
+    void thred_log_read();
 
 public:
-
+    
     Logreader(const std::filesystem::path &path) noexcept; 
 
     Logreader(const Logreader &other) = delete;

@@ -15,12 +15,12 @@ int main()
     
     #ifdef _WIN32
         setlocale(LC_CTYPE,"Russian");//Windows 1251 + cmd Lucida console
-        std::filesystem::path path{"/Alphacenter/logsrv/auto_"+Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd'})+".log"};std::filesystem::path path{"/Alphacenter/logsrv/auto_"+Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd'})+".log"};
+        //std::filesystem::path path{"/Alphacenter/logsrv/auto_"+Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd'})+".log"};
+         std::filesystem::path path{"auto_211116.log"};
     #elif __linux__
         std::filesystem::path path{"auto_211116.log"};
     #endif
-    
-    
+
     if(std::filesystem::exists(path))
     {
         Logreader logreader(path);
