@@ -25,7 +25,7 @@ int main()
     if(std::filesystem::exists(path))
     {
         
-        Logerstatus st = logreader.start();
+        Logerstatus st = logreader.start(500);
         if(Logerstatus::LOG_FILE_OPEN_ERROR == st)
         {
             std::cout << "Error\n";
@@ -36,7 +36,8 @@ int main()
     {
         std::cout << "Not dir\n";
     }
-    
+    int get;
+    std::cin>>get;
     std::cout<< Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd', ' ', 'H','M','S'});
     Getdate::Destroy();
     return 0;
