@@ -32,8 +32,11 @@ int main()
         }
         //logreader.stop();
     }
-   
-    std::cout << "Not dir" << std::endl;
+    else
+    {
+        std::cout << "Not dir\n";
+    }
+    
     std::cout<< Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd', ' ', 'H','M','S'});
     Getdate::Destroy();
     return 0;

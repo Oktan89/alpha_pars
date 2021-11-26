@@ -26,8 +26,8 @@ Logerstatus Logreader::start(int64_t timer_ms)
 {
     run = true;
 
-    _log_thread= std::thread(&Logreader::thred_log_read, this, timer_ms);
-    
+    auto t = std::thread(&Logreader::thred_log_read, this, timer_ms);
+    _log_thread.swap(t); ///??????
     return _status;
 }
 

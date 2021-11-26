@@ -28,6 +28,8 @@ public:
 
     Logreader(const Logreader &other) = delete;
 
+    Logreader& operator=(const Logerstatus& other) = delete;
+
     Logerstatus start(int64_t timer_ms = 1000);
 
     void stop();
