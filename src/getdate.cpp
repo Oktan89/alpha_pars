@@ -1,10 +1,10 @@
 #include <chrono>
 #include "getdate.h"
 
-void Getdate::update() // нужно предусмотреть многопоточность
+void Getdate::update() const // нужно предусмотреть многопоточность
 {
+    std::lock_guard<std::mutex> loc(_m_date);
     time_now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-   //time_now = std::time(nullptr);
     _tm = std::localtime(&time_now);
 }
 
@@ -16,7 +16,7 @@ void Getdate::update() // нужно предусмотреть многопот
 // mon - m
 // day - d
 // exemple: {'H',':', 'M', ':', 'S'} return 22:01:36
-std::string Getdate::getdate_time(std::initializer_list<char> lst)
+std::string Getdate::getdate_time(std::initializer_list<char> lst) const
 {
     std::string s_date{};
     update();

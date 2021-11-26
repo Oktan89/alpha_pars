@@ -1,6 +1,8 @@
 #include <iostream>
 #include <thread>
 #include "logreader.h"
+#include "getdate.h"
+
 #define DEBUG
 
 
@@ -22,7 +24,7 @@ Logreader::Logreader(const std::filesystem::path &path) noexcept : _path(path)
     }
 }
 
-Logerstatus Logreader::start(int64_t timer_ms)
+Logerstatus Logreader::start(const int64_t timer_ms)
 {
     run = true;
 
@@ -33,7 +35,7 @@ Logerstatus Logreader::start(int64_t timer_ms)
 
 void Logreader::thred_log_read(int64_t timer_ms)
 {
-    while ((_status != Logerstatus::LOG_FILE_OPEN_ERROR) && run)
+    while (run)
     {
         _file.open(_path, std::ios::binary | std::ios::ate);
 
@@ -85,4 +87,9 @@ void Logreader::stop()
 Logreader::~Logreader()
 {
     stop();
+}
+
+void Logreader::setNewfileDependingCurdate(const std::filesystem::path &oldpatch)
+{
+    std::filesystem::path path{"/Alphacenter/logsrv/auto_"+Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd'})+".log"};
 }

@@ -20,7 +20,10 @@ private:
     Logerstatus _status{Logerstatus::LOG_FILE_CLOSE};
     std::thread _log_thread;
     std::atomic<bool> run = false;
-    void thred_log_read(int64_t timer_ms);
+
+    void thred_log_read(const int64_t timer_ms);
+
+    void setNewfileDependingCurdate(const std::filesystem::path &oldpatch);
 
 public:
     

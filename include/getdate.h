@@ -9,11 +9,11 @@ class Getdate
 {
     static Getdate *_date;
     static std::mutex _m_date;
-    std::time_t time_now;
-    std::tm* _tm{};
+    mutable std::time_t time_now;
+    mutable std::tm* _tm{};
 
 protected:
-    void update();
+    void update() const;
     
     Getdate() : time_now(std::time(nullptr)), _tm(std::localtime(&time_now)){}
     
@@ -29,7 +29,7 @@ public:
 
     static void Destroy();
 
-    std::string getdate_time(std::initializer_list<char> lst);
+    std::string getdate_time(std::initializer_list<char> lst) const;
 
 };
 

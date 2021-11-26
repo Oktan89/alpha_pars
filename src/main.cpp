@@ -20,7 +20,7 @@ int main()
     #elif __linux__
         std::filesystem::path path{"auto_211116.log"};
     #endif
-    
+       
     Logreader logreader(path);
     if(std::filesystem::exists(path))
     {
