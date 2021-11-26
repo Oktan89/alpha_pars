@@ -22,14 +22,11 @@ int main()
     #endif
        
     Logreader logreader(path);
+
     if(std::filesystem::exists(path))
     {
         
-        Logerstatus st = logreader.start(500);
-        if(Logerstatus::LOG_FILE_OPEN_ERROR == st)
-        {
-            std::cout << "Error\n";
-        }
+        logreader.start(500);
         //logreader.stop();
     }
     else
@@ -38,7 +35,7 @@ int main()
     }
     int get;
     std::cin>>get;
-    std::cout<< Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd', ' ', 'H','M','S'});
+    //std::cout<< Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd', ' ', 'H','M','S'});
     Getdate::Destroy();
     return 0;
 }
