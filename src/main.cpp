@@ -36,7 +36,7 @@ int main()
     int get;
     std::cin>>get;
     //std::cout<< Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd', ' ', 'H','M','S'});
-    Getdate::Destroy();
+    //Getdate::Destroy();
     return 0;
 }
 
