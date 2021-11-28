@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <ctime>
 #include <filesystem>
 #ifdef _WIN32
 #include <clocale>
@@ -20,7 +21,21 @@ int main()
     #elif __linux__
         std::filesystem::path path{"auto_211116.log"};
     #endif
-       
+
+    //Запуск потока в опредлееное время!!!!!
+   /* std::tm tm{};
+    tm.tm_hour = 1;
+    tm.tm_min = 39;
+    tm.tm_sec = 0;
+    tm.tm_mon = 11-1;
+    tm.tm_mday = 29;
+    tm.tm_year = 2021 - 1900;
+    
+    //tm.tm_isdst = -1; // Use DST value from local time zone
+    auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+
+    std::this_thread::sleep_until(tp);
+    std::cout<<"!!!!"<<std::endl;*/
     Logreader logreader(path);
 
     if(std::filesystem::exists(path))
