@@ -4,6 +4,9 @@
 #include <mutex>
 #include <atomic>
 #include <fstream>
+#include "pcout.h"
+#include "getdate.h"
+
 
 enum class Logerstatus
 {
@@ -30,6 +33,7 @@ private:
     std::thread _log_thread;
     std::atomic<bool> run;
     std::mutex _m_locfilepatch;
+    Getdate *_getdate;
 
     void thred_log_read(const int64_t timer_ms);
 

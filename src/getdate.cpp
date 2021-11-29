@@ -63,10 +63,10 @@ Getdate *Getdate::GetObjectDate()
     return _date;
 }
 
-void Getdate::Destroy()
+/*void Getdate::Destroy()
 {
     delete _date;
-}
+}*/
 
 std::tm Getdate::getStructTmTimeNow() const
 {

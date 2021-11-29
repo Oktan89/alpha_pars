@@ -6,8 +6,8 @@
 #ifdef _WIN32
 #include <clocale>
 #endif
-#include "getdate.h"
 #include "logreader.h"
+#include "pcout.h" // потокобезопасный cout
 
 
 int main()
@@ -17,7 +17,7 @@ int main()
     #ifdef _WIN32
         setlocale(LC_CTYPE,"Russian");//Windows 1251 + cmd Lucida console
     #elif __linux__
-        std::filesystem::path path{"auto_211116.log"};
+        //std::filesystem::path path{"auto_211116.log"};
     #endif
 
   
@@ -32,7 +32,7 @@ int main()
     }
     else
     {
-        std::cout << "Not dir\n";
+        pcout{} << "Not dir\n";
     }
     int get;
     std::cin>>get;

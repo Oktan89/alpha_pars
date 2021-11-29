@@ -27,7 +27,7 @@ public:
 
     static Getdate *GetObjectDate();
 
-    static void Destroy();
+    //static void Destroy();
 
     std::string getdate_time(std::initializer_list<char> lst) const;
 

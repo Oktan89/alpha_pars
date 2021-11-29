@@ -9,7 +9,7 @@
 
 Logreader::Logreader(const std::filesystem::path &path) noexcept :
  _savepos(0), _file{}, _path(path), _status(Logerstatus::LOG_FILE_STOP), _log_thread{},
- run(false), _m_locfilepatch{}{}
+ run(false), _m_locfilepatch{}, _getdate(Getdate::GetObjectDate()){}
 
 void Logreader::intit()
 {
@@ -21,7 +21,7 @@ void Logreader::intit()
     if (_file.is_open())
     {
         #ifdef DEBUG
-            std::cout << "[Logreader "<<this<<"]: Check file open... OK\n";
+            pcout{} << "[Logreader "<<this<<"]: Check file open... OK\n";
         #endif
         //Если файл открыт, сохраняем позицию курсора конца файла
         _savepos = _file.tellg();
@@ -32,7 +32,7 @@ void Logreader::intit()
            if(autopath.joinable())
            {
                #ifdef DEBUG
-                    std::cout << "[Thread Autopath "<<autopath.get_id()<<"]: Thread... start\n";
+                    pcout{} << "[Thread Autopath "<<autopath.get_id()<<"]: Thread... start\n";
                #endif
                autopath.detach();
                
@@ -40,14 +40,14 @@ void Logreader::intit()
            else
            {
                #ifdef DEBUG
-                    std::cout << "[Thread Autopat "<<autopath.get_id()<<"]: Thread...error start\n";
+                    pcout{} << "[Thread Autopat "<<autopath.get_id()<<"]: Thread...error start\n";
                #endif
            }
     }
     else
     {
         #ifdef DEBUG
-            std::cout << "[Logreader "<<this<<"]: Check file open... ERROR\n";
+            pcout{} << "[Logreader "<<this<<"]: Check file open... ERROR\n";
         #endif
         _status = Logerstatus::LOG_FILE_ERROR;
     }
@@ -55,6 +55,14 @@ void Logreader::intit()
 
 void Logreader::start(const int32_t timer_ms)
 {
+    if(Logerstatus::LOG_FILE_ERROR == _status)
+    {
+        #ifdef DEBUG
+            pcout{} << "[Thread Logreader "<<_log_thread.get_id()<<"]: start false\n";
+        #endif
+        return;
+    }
+    
     run = true;
     assert(!_log_thread.joinable());
     
@@ -63,7 +71,7 @@ void Logreader::start(const int32_t timer_ms)
     _status = Logerstatus::LOG_FILE_RUN;
     
     #ifdef DEBUG
-        std::cout << "[Thread Logreader "<<_log_thread.get_id()<<"]: start\n";
+        pcout{} << "[Thread Logreader "<<_log_thread.get_id()<<"]: start\n";
     #endif
 }
 
@@ -87,9 +95,9 @@ void Logreader::thred_log_read(int64_t timer_ms)
                     std::string strbuff(static_cast<std::size_t>(gnew), '\0'); //создаем буфер для чтения вычесленного коллиества символов
                     _file.seekg(_savepos);//переводим курсор на ранее сохраненное место конца файла
                     _file.read(&strbuff[0], gnew);//и читаем с этого места колличество вычисленных символов
-                    std::cout << strbuff;//что то делаем с информацией!!!!!
+                    pcout{} << strbuff;//что то делаем с информацией!!!!!
                     #ifdef DEBUG
-                        std::cout << "[Thread Logreader "<<_log_thread.get_id()<<"]:<-------------------------->\n";
+                        pcout{} << "[Thread Logreader "<<_log_thread.get_id()<<"]:<-------------------------->\n";
                     #endif
                     _savepos = temp; //сохраняем новую позицию конца файла
                 }
@@ -114,7 +122,7 @@ void Logreader::stop()
     if(_log_thread.joinable())
     {
         #ifdef DEBUG
-            std::cout << "[Thread Logreader "<<_log_thread.get_id()<<"]: stop\n";
+            pcout{} << "[Thread Logreader "<<_log_thread.get_id()<<"]: stop\n";
         #endif
         _log_thread.join();
     }
@@ -125,7 +133,7 @@ Logreader::~Logreader()
 {
     stop();
     #ifdef DEBUG
-            std::cout << "[Logreader "<<this<<"]: ~Delete... OK\n";
+            pcout{} << "[Logreader "<<this<<"]: ~Delete... OK\n";
     #endif
 }
 
@@ -143,12 +151,12 @@ void Logreader::autoSetNewfileDependingCurdate()
 {
     //Запуск потока в опредлееное время!!!!!
     #ifdef DEBUG
-        std::cout << "[Thread Autopath "<<this<<"]: Start...OK\n";
+        pcout{} << "[Thread Autopath "<<this<<"]: Start...OK\n";
     #endif
 
     while(true)
     {
-        std::tm tm = Getdate::GetObjectDate()->getStructTmTimeNow();
+        std::tm tm = _getdate->getStructTmTimeNow();
         tm.tm_hour = 0;
         tm.tm_min = 0;
         tm.tm_sec = 1;
@@ -165,14 +173,14 @@ void Logreader::autoSetNewfileDependingCurdate()
 void Logreader::setNewfileDependingCurdate(const std::filesystem::path &oldpatch)
 {
     AlphacentrPatch patch_name;
-    std::string file_name = Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd'});
+    std::string file_name = _getdate->getdate_time({'y', 'm', 'd'});
     std::filesystem::path newpath{patch_name.logsrv + file_name + patch_name.extension};
     if(oldpatch != newpath)
     {
         std::lock_guard<std::mutex> loc(_m_locfilepatch);
         _path.swap(newpath);
         #ifdef DEBUG
-            std::cout << "[Thread Logreader "<<_log_thread.get_id()<<"]: set new file name "<< _path<<"\n";
+            pcout{} << "[Thread Logreader "<<_log_thread.get_id()<<"]: set new file name "<< _path<<"\n";
         #endif
     }
 }
