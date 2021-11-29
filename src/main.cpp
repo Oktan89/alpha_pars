@@ -16,33 +16,19 @@ int main()
     
     #ifdef _WIN32
         setlocale(LC_CTYPE,"Russian");//Windows 1251 + cmd Lucida console
-        //std::filesystem::path path{"/Alphacenter/logsrv/auto_"+Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd'})+".log"};
-        std::filesystem::path path{"auto_211116.log"};
     #elif __linux__
         std::filesystem::path path{"auto_211116.log"};
     #endif
 
-    //Запуск потока в опредлееное время!!!!!
-   /* std::tm tm{};
-    tm.tm_hour = 1;
-    tm.tm_min = 39;
-    tm.tm_sec = 0;
-    tm.tm_mon = 11-1;
-    tm.tm_mday = 29;
-    tm.tm_year = 2021 - 1900;
-    
-    //tm.tm_isdst = -1; // Use DST value from local time zone
-    auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+  
+    Logreader logreader;
+    logreader.intit();
 
-    std::this_thread::sleep_until(tp);
-    std::cout<<"!!!!"<<std::endl;*/
-    Logreader logreader(path);
-
-    if(std::filesystem::exists(path))
+    if(std::filesystem::exists(logreader.getPatch()))
     {
         
         logreader.start(500);
-        //logreader.stop();
+        
     }
     else
     {
@@ -50,8 +36,7 @@ int main()
     }
     int get;
     std::cin>>get;
-    //std::cout<< Getdate::GetObjectDate()->getdate_time({'y', 'm', 'd', ' ', 'H','M','S'});
-    //Getdate::Destroy();
+    
     return 0;
 }
 

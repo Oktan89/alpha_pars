@@ -68,5 +68,11 @@ void Getdate::Destroy()
     delete _date;
 }
 
+std::tm Getdate::getStructTmTimeNow() const
+{
+    update();
+    return *_tm;
+}
+
 Getdate * Getdate::_date = nullptr;
 std::mutex Getdate::_m_date;

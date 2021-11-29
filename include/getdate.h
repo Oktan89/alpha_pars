@@ -31,5 +31,6 @@ public:
 
     std::string getdate_time(std::initializer_list<char> lst) const;
 
+    std::tm getStructTmTimeNow() const;
 };
 

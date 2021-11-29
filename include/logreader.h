@@ -1,6 +1,7 @@
 #pragma once
 #include <filesystem>
 #include <thread>
+#include <mutex>
 #include <atomic>
 #include <fstream>
 
@@ -18,33 +19,40 @@ struct AlphacentrPatch
     const char* extension{".log"};
 };
 
+
 class Logreader
 {
 private:
-    std::streampos _savepos = 0;
+    std::streampos _savepos;
     std::ifstream _file;
     std::filesystem::path _path;
-    std::atomic<Logerstatus> _status{Logerstatus::LOG_FILE_STOP};
+    std::atomic<Logerstatus> _status;
     std::thread _log_thread;
-    std::atomic<bool> run = false;
+    std::atomic<bool> run;
+    std::mutex _m_locfilepatch;
 
     void thred_log_read(const int64_t timer_ms);
 
     void setNewfileDependingCurdate(const std::filesystem::path &oldpatch);
+    void autoSetNewfileDependingCurdate();
 
 public:
     
-    Logreader(const std::filesystem::path &path) noexcept; 
+    Logreader(const std::filesystem::path &path  = "auto_211116.log") noexcept; 
 
     Logreader(const Logreader &other) = delete;
 
     Logreader& operator=(const Logerstatus& other) = delete;
 
-    void start(int64_t timer_ms = 1000);
+    void intit();
+
+    void start(int32_t timer_ms = 1000);
 
     void stop();
 
     Logerstatus status() const noexcept;
+
+    std::filesystem::path getPatch() const noexcept;
 
     ~Logreader();
 

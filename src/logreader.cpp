@@ -7,8 +7,14 @@
 #define DEBUG
 
 
-Logreader::Logreader(const std::filesystem::path &path) noexcept : _path(path)
+Logreader::Logreader(const std::filesystem::path &path) noexcept :
+ _savepos(0), _file{}, _path(path), _status(Logerstatus::LOG_FILE_STOP), _log_thread{},
+ run(false), _m_locfilepatch{}{}
+
+void Logreader::intit()
 {
+    //Проверяем название файла и устанаваливаем правильное в соостветсвии с датой
+    setNewfileDependingCurdate(_path);
     //Открываем файл на чтение с позицией курсора на конец файла
     _file.open(_path, std::ios::binary | std::ios::ate);
 
@@ -21,6 +27,22 @@ Logreader::Logreader(const std::filesystem::path &path) noexcept : _path(path)
         _savepos = _file.tellg();
         _file.close();
         _status = Logerstatus::LOG_FILE_OK;
+        //Запускаем отдельный поток для коррекции имени фала лога в 00:00:01 ночи
+        std::thread autopath = std::thread(&Logreader::autoSetNewfileDependingCurdate, this);
+           if(autopath.joinable())
+           {
+               #ifdef DEBUG
+                    std::cout << "[Thread Autopath "<<autopath.get_id()<<"]: Thread... start\n";
+               #endif
+               autopath.detach();
+               
+           }
+           else
+           {
+               #ifdef DEBUG
+                    std::cout << "[Thread Autopat "<<autopath.get_id()<<"]: Thread...error start\n";
+               #endif
+           }
     }
     else
     {
@@ -31,7 +53,7 @@ Logreader::Logreader(const std::filesystem::path &path) noexcept : _path(path)
     }
 }
 
-void Logreader::start(const int64_t timer_ms)
+void Logreader::start(const int32_t timer_ms)
 {
     run = true;
     assert(!_log_thread.joinable());
@@ -39,6 +61,7 @@ void Logreader::start(const int64_t timer_ms)
     auto t = std::thread(&Logreader::thred_log_read, this, timer_ms);
     _log_thread.swap(t);
     _status = Logerstatus::LOG_FILE_RUN;
+    
     #ifdef DEBUG
         std::cout << "[Thread Logreader "<<_log_thread.get_id()<<"]: start\n";
     #endif
@@ -48,7 +71,7 @@ void Logreader::thred_log_read(int64_t timer_ms)
 {
     while (run)
     {
-        setNewfileDependingCurdate(_path);
+        //setNewfileDependingCurdate(_path);
         _file.open(_path, std::ios::binary | std::ios::ate);
 
             if (_file.is_open())
@@ -106,6 +129,38 @@ Logreader::~Logreader()
     #endif
 }
 
+Logerstatus Logreader::status() const noexcept
+{
+    return _status;
+}
+
+std::filesystem::path Logreader::getPatch() const noexcept
+{
+    return _path;
+}
+
+void Logreader::autoSetNewfileDependingCurdate()
+{
+    //Запуск потока в опредлееное время!!!!!
+    #ifdef DEBUG
+        std::cout << "[Thread Autopath "<<this<<"]: Start...OK\n";
+    #endif
+
+    while(true)
+    {
+        std::tm tm = Getdate::GetObjectDate()->getStructTmTimeNow();
+        tm.tm_hour = 0;
+        tm.tm_min = 0;
+        tm.tm_sec = 1;
+        //tm.tm_mon = 11-1;
+        tm.tm_mday += 1;
+        //tm.tm_year = 2021 - 1900;
+        auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+        std::this_thread::sleep_until(tp);
+        setNewfileDependingCurdate(_path);
+    }
+}
+
 //Если сменилась дата то меняем название файла
 void Logreader::setNewfileDependingCurdate(const std::filesystem::path &oldpatch)
 {
@@ -114,16 +169,10 @@ void Logreader::setNewfileDependingCurdate(const std::filesystem::path &oldpatch
     std::filesystem::path newpath{patch_name.logsrv + file_name + patch_name.extension};
     if(oldpatch != newpath)
     {
+        std::lock_guard<std::mutex> loc(_m_locfilepatch);
         _path.swap(newpath);
         #ifdef DEBUG
             std::cout << "[Thread Logreader "<<_log_thread.get_id()<<"]: set new file name "<< _path<<"\n";
         #endif
     }
-        
-  
-}
-
-Logerstatus Logreader::status() const noexcept
-{
-    return _status;
 }
