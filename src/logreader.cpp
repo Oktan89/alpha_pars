@@ -156,16 +156,15 @@ void Logreader::autoSetNewfileDependingCurdate()
 
     while(true)
     {
-        std::tm tm = _getdate->getStructTmTimeNow();
+        std::tm tm = _getdate->getStructTmTimeNow();//Текущее время
         tm.tm_hour = 0;
         tm.tm_min = 0;
         tm.tm_sec = 1;
-        //tm.tm_mon = 11-1;
-        tm.tm_mday += 1;
-        //tm.tm_year = 2021 - 1900;
-        auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
-        std::this_thread::sleep_until(tp);
-        setNewfileDependingCurdate(_path);
+        tm.tm_mday += 1; //устанавливаем сработку на следуюзий день в 00:00:01
+  
+        auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm)); //конвертируем tm в time_point
+        std::this_thread::sleep_until(tp); //Засыпаем до установленного времени
+        setNewfileDependingCurdate(_path); //меняем название файла
     }
 }
 
