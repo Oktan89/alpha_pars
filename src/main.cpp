@@ -17,7 +17,7 @@ int main()
     #ifdef _WIN32
         setlocale(LC_CTYPE,"Russian");//Windows 1251 + cmd Lucida console
     #elif __linux__
-        //std::filesystem::path path{"auto_211116.log"};
+        std::filesystem::path path{"auto_211116.log"};
     #endif
 
   

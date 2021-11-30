@@ -18,7 +18,11 @@ enum class Logerstatus
 
 struct AlphacentrPatch
 {
-    const char* logsrv{"/Alphacenter/logsrv/auto_"};
+    #ifdef _WIN32
+        const char* logsrv{"/Alphacenter/logsrv/auto_"};
+    #elif __linux__
+        const char* logsrv{"/logsrv/auto_"};
+    #endif
     const char* extension{".log"};
 };
 
