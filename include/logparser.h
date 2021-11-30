@@ -20,7 +20,7 @@ class ParseLogSrv : public IBaseParser
 public:
     void parse(const std::string& log) override
     {
-       std::size_t pos = log.find("????? ?????");
+       std::size_t pos = log.find("***");
        std::cout << pos << log <<"\n";
     }
     ~ParseLogSrv(){}

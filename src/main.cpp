@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
-#include <thread>
-#include <ctime>
+//#include <thread>
 #include <filesystem>
 #ifdef _WIN32
 #include <clocale>
@@ -9,7 +8,7 @@
 #include "threadsafe_queue.h"
 #include "logreader.h"
 #include "logparser.h"
-#include "pcout.h" // ???????????????? cout
+#include "pcout.h" // thread safe cout
 
 
 int main()
@@ -20,37 +19,37 @@ int main()
         std::filesystem::path path{"auto_211116.log"};
     #endif
     
-   /* IBaseParser *pars = new ParseLogSrv;
-    pars->parse("*** ???? ????? ?????");
-    delete pars;
+    /*std::unique_ptr<IBaseParser> pars = std::make_unique<ParseLogSrv>();
+    
+    pars->parse("*** [01/02/2021 00:00:01]");
+    
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     return 0;*/
 
-    threadsafe_queue<std::string> askue;
+    auto askue = std::make_shared<threadsafe_queue<std::string>>();
     
     Logreader logreader;
-    logreader.intit();
+    logreader.intit(false);
 
     if(std::filesystem::exists(logreader.getPatch()))
     {
         
-        logreader.start(askue, 500);
+        //logreader.start(askue, 500);
         std::string test;
-        while(true)
+        for(auto run = logreader.start(askue, 500); run ; run = logreader.status())
         {
-            askue.wait_and_pop(test);
+            askue->wait_and_pop(test);
             pcout{} << test;
+            //logreader.stop();          
         }
-        
         
     }
     else
     {
-        pcout{} << "Not dir\n";
+        pcout{} << "Log file not found\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
-    int get;
-    std::cin>>get;
-    
+        
     return 0;
 }
 

@@ -40,7 +40,7 @@ private:
     std::mutex _m_locfilepatch;
     Getdate *_getdate;
 
-    void thred_log_read(threadsafe_queue<std::string>& queue, const int64_t timer_ms);
+    void thred_log_read(std::shared_ptr<threadsafe_queue<std::string>> queue, const int64_t timer_ms);
 
     void setNewfileDependingCurdate(const std::filesystem::path &oldpatch);
     void autoSetNewfileDependingCurdate();
@@ -53,13 +53,13 @@ public:
 
     Logreader& operator=(const Logerstatus& other) = delete;
 
-    void intit();
+    void intit(bool autopath = true);
 
-    bool start(threadsafe_queue<std::string>& queue, int32_t timer_ms = 1000);
+    bool start(std::shared_ptr<threadsafe_queue<std::string>> queue, int32_t timer_ms = 1000);
 
     void stop();
 
-    Logerstatus status() const noexcept;
+    bool status() const noexcept;
 
     std::filesystem::path getPatch() const noexcept;
 
