@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-//#include <thread>
+//#include <csignal>
 #include <filesystem>
 #ifdef _WIN32
 #include <clocale>
@@ -10,9 +10,17 @@
 #include "logparser.h"
 #include "pcout.h" // thread safe cout
 
+/*std::atomic_bool interrupted{};
+extern "C" void handler(int signal)
+{
+    std::cout << "Handler invoked with signal " << signal << ".\n";
+    interrupted = true;
+}*/
 
 int main()
 {
+    //std::signal(SIGINT, handler);
+
     #ifdef _WIN32
         setlocale(LC_ALL,"");//Windows 1251 + cmd Lucida console
     #elif __linux__
