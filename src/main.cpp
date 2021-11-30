@@ -9,19 +9,19 @@
 #include "threadsafe_queue.h"
 #include "logreader.h"
 #include "logparser.h"
-#include "pcout.h" // потокобезопасный cout
+#include "pcout.h" // ???????????????? cout
 
 
 int main()
 {
     #ifdef _WIN32
-        setlocale(LC_CTYPE,"Russian");//Windows 1251 + cmd Lucida console
+        setlocale(LC_ALL,"");//Windows 1251 + cmd Lucida console
     #elif __linux__
         std::filesystem::path path{"auto_211116.log"};
     #endif
     
    /* IBaseParser *pars = new ParseLogSrv;
-    pars->parse("*** [30/11/2021 00:00:10] опрос точки 340210 (Название) запущен ,порт СОМ26");
+    pars->parse("*** ???? ????? ?????");
     delete pars;
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     return 0;*/
