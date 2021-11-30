@@ -6,6 +6,7 @@
 #include <fstream>
 #include "pcout.h"
 #include "getdate.h"
+#include "threadsafe_queue.h"
 
 
 enum class Logerstatus
@@ -39,7 +40,7 @@ private:
     std::mutex _m_locfilepatch;
     Getdate *_getdate;
 
-    void thred_log_read(const int64_t timer_ms);
+    void thred_log_read(threadsafe_queue<std::string>& queue, const int64_t timer_ms);
 
     void setNewfileDependingCurdate(const std::filesystem::path &oldpatch);
     void autoSetNewfileDependingCurdate();
@@ -54,7 +55,7 @@ public:
 
     void intit();
 
-    void start(int32_t timer_ms = 1000);
+    bool start(threadsafe_queue<std::string>& queue, int32_t timer_ms = 1000);
 
     void stop();
 

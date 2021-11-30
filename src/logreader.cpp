@@ -53,29 +53,31 @@ void Logreader::intit()
     }
 }
 
-void Logreader::start(const int32_t timer_ms)
+bool Logreader::start(threadsafe_queue<std::string>& queue, const int32_t timer_ms)
 {
     if(Logerstatus::LOG_FILE_ERROR == _status)
     {
         #ifdef DEBUG
             pcout{} << "[Thread Logreader "<<_log_thread.get_id()<<"]: start false\n";
         #endif
-        return;
+        run = false;
+        return run;
     }
     
     run = true;
     assert(!_log_thread.joinable());
     
-    auto t = std::thread(&Logreader::thred_log_read, this, timer_ms);
+    auto t = std::thread(&Logreader::thred_log_read, this, std::ref(queue), timer_ms);
     _log_thread.swap(t);
     _status = Logerstatus::LOG_FILE_RUN;
     
     #ifdef DEBUG
         pcout{} << "[Thread Logreader "<<_log_thread.get_id()<<"]: start\n";
     #endif
+    return run;
 }
 
-void Logreader::thred_log_read(int64_t timer_ms)
+void Logreader::thred_log_read(threadsafe_queue<std::string>& queue, int64_t timer_ms)
 {
     while (run)
     {
@@ -95,7 +97,8 @@ void Logreader::thred_log_read(int64_t timer_ms)
                     std::string strbuff(static_cast<std::size_t>(gnew), '\0'); //создаем буфер для чтения вычесленного коллиества символов
                     _file.seekg(_savepos);//переводим курсор на ранее сохраненное место конца файла
                     _file.read(&strbuff[0], gnew);//и читаем с этого места колличество вычисленных символов
-                    pcout{} << strbuff;//что то делаем с информацией!!!!!
+                    //pcout{} << strbuff;//что то делаем с информацией!!!!!
+                    queue.push(strbuff);
                     #ifdef DEBUG
                         pcout{} << "[Thread Logreader "<<_log_thread.get_id()<<"]:<-------------------------->\n";
                     #endif
