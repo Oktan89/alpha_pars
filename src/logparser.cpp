@@ -1,31 +1,72 @@
-#include <iomanip>
+#include <vector>
 #include "logparser.h"
 
 
 void ParseLogSrv::parse(const std::string& log)
 {
-    std::size_t pos = log.find("***");
-    if (log.npos != pos)
+    if (brokeRecord(log))
     {
-        std::size_t pos_start = log.find('[');
-        std::size_t pos_end = log.find(']', pos_start);
-        convertFindTime(log.substr(pos_start + 1, pos_end - pos_start - 1));
+        for (const auto &br : _record)
+        {
+            //Поиск времени для примера!!!!!
+            std::size_t pos = br.find("***");
+            if (br.npos != pos)
+            {
+                std::size_t pos_start = br.find('[');
+                std::size_t pos_end = br.find(']', pos_start);
+                if(pos_start == br.npos)
+                {
+                   pos_start = br.find('"');
+                   pos_end = br.find('"', pos_start);
+                }
+                Time_stamp t = convertFindTime(br.substr(pos_start + 1, pos_end - pos_start - 1));
+                pcout{} <<t.day<<"/"<<t.mon<<"/"<<t.year<<" "<<t.hour<<":"<<t.min<<":"<<t.sec<<"\n";
+            }
+            
+        }
     }
-   // pcout{} << pos << log << "\n";
 }
 
-std::tm ParseLogSrv::convertFindTime(const std::string& time)
+Time_stamp ParseLogSrv::convertFindTime(const std::string& time)
 {
-    std::tm t;
-    t.tm_mday = std::stoi(time.substr(0, 2));
-    t.tm_mon = std::stoi(time.substr(3, 2));
-    t.tm_year = std::stoi(time.substr(6, 4)) - 1900;
-    t.tm_hour = std::stoi(time.substr(11, 2));
-    t.tm_min = std::stoi(time.substr(14, 2));
-    t.tm_sec = std::stoi(time.substr(17, 2));
-    std::time_t t_mk = std::mktime(&t);
-    t = *std::localtime(&t_mk);
+    Time_stamp ts;
+    
+    ts.day = std::stoi(time.substr(0, 2));
+    ts.mon = std::stoi(time.substr(3, 2));
+    ts.year = std::stoi(time.substr(6, 4));
+    ts.hour = std::stoi(time.substr(11, 2));
+    ts.min = std::stoi(time.substr(14, 2));
+    ts.sec = std::stoi(time.substr(17, 2));
+    
+    return ts;
+}
 
-    pcout{} << "local: " << std::put_time(&t, "%c %Z") << '\n';
-    return t;
+bool ParseLogSrv::brokeRecord(const std::string &log)
+{
+    //ищем первое вхождение ***
+    std::size_t start_pos = log.find("***");
+    //если нашли
+    while (start_pos != log.npos)
+    {
+        //ищем следующее
+        std::size_t end_pos = log.find("***", start_pos + 3);
+        //если больше нет то записываем всю строку от start
+        if (end_pos == log.npos)
+        {
+            _record.push_back(log.substr(start_pos));
+            //и завершаем цикл
+            start_pos = end_pos;
+        }
+        //если найдено следующее вхождение ***
+        else
+        {
+            //записываем строку от start до end -1
+           _record.push_back(log.substr(start_pos, end_pos - 1));
+            //задаем следующее занчение для поиска *** от end
+            start_pos = end_pos;
+        }
+    }
+     for(const auto& l : _record)
+        pcout{} << l;
+    return !_record.empty();
 }

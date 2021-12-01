@@ -29,7 +29,7 @@ int main()
     
     std::unique_ptr<IBaseParser> pars = std::make_unique<ParseLogSrv>();
     
-    pars->parse("*** [29/11/2021 15:36:11] опрос точки 330357 (АУП (блок Б) Железнодорожная 8 от ТП-5А) запущен ,порт COM31");
+    pars->parse("*** [29/11/2021 15:36:11] опрос точки 330357 (АУП (блок Б) Железнодорожная 8 от ТП-5А) запущен ,порт COM31\n *** точка опроса 190118 - след.опрос в \"29/11/2021 16:30:10\"\n");
     
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     return 0;
