@@ -3,7 +3,7 @@
 //#include <csignal>
 #include <filesystem>
 #ifdef _WIN32
-#include <clocale>
+#include "consolecp.h"
 #endif
 #include "threadsafe_queue.h"
 #include "logreader.h"
@@ -22,17 +22,17 @@ int main()
     //std::signal(SIGINT, handler);
 
     #ifdef _WIN32
-        setlocale(LC_ALL,"");//Windows 1251 + cmd Lucida console
+        ConsoleCP console(1251);
     #elif __linux__
-        std::filesystem::path path{"auto_211116.log"};
+        
     #endif
     
-    /*std::unique_ptr<IBaseParser> pars = std::make_unique<ParseLogSrv>();
+    std::unique_ptr<IBaseParser> pars = std::make_unique<ParseLogSrv>();
     
-    pars->parse("*** [01/02/2021 00:00:01]");
+    pars->parse("*** [29/11/2021 15:36:11] опрос точки 330357 (АУП (блок Б) Железнодорожная 8 от ТП-5А) запущен ,порт COM31");
     
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-    return 0;*/
+    return 0;
 
     auto askue = std::make_shared<threadsafe_queue<std::string>>();
     

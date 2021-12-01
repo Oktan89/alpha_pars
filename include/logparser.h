@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
+#include <ctime>
 #include <map>
+#include "pcout.h"
 
 struct ObjectAskue
 {
@@ -17,12 +19,14 @@ public:
 
 class ParseLogSrv : public IBaseParser
 {
+    
+    std::tm convertFindTime(const std::string& time);
+
 public:
-    void parse(const std::string& log) override
-    {
-       std::size_t pos = log.find("***");
-       std::cout << pos << log <<"\n";
-    }
+
+    void parse(const std::string& log) override;
+
     ~ParseLogSrv(){}
     
 };
+
