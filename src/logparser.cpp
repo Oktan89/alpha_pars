@@ -17,7 +17,10 @@ void ParseLogSrv::parse(const std::string& log)
             auto poll = is_pollingPoints(br);
             if(poll.first)
             {
-                pcout{} << getId(br, poll.second) << std::endl;
+                pcout{} << getId(br, poll.second) << std::endl;//-1 error
+                auto name = getName(br);
+                if(name.first)
+                    pcout{} << name.second << std::endl;
                 auto find_t = findTime(br);
                 if(find_t.first)
                 {
@@ -84,7 +87,21 @@ int ParseLogSrv::getId(const std::string&log, std::size_t pos) const
     std::size_t pos_end = log.find(" ", pos);
     if(pos_end == log.npos)
         return -1;
-    return std::stoi(log.substr(pos, pos_end));
+    return std::stoi(log.substr(pos, pos_end - pos ));
+}
+
+std::pair<bool, const std::string> ParseLogSrv::getName(const std::string& log) const
+{
+    std::size_t pos_start = log.find_first_of(protocol.rbL);
+    std::size_t pos_end = log.find_last_of(protocol.rbR);
+    
+    if(pos_start != log.npos || pos_end != log.npos)
+    {
+        ++pos_start;
+        return std::make_pair(true, log.substr(pos_start, pos_end-pos_start));
+    }
+        
+    return std::make_pair(false, log);
 }
 
 Time_stamp ParseLogSrv::convertFindTime(const std::string& time) const
@@ -121,7 +138,7 @@ bool ParseLogSrv::brokeRecord(const std::string &log)
         else
         {
             //записываем строку от start до end -1
-           _record.push_back(log.substr(start_pos, end_pos - 1));
+           _record.push_back(log.substr(start_pos, end_pos - start_pos));
             //задаем следующее значение для поиска *** от end
             start_pos = end_pos;
         }

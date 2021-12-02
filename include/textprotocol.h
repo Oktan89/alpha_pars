@@ -15,9 +15,9 @@ struct PotokolLogSrv
     // Квадратная скобка закр. ]
     const char sbR{']'};
     //Круглая скобка откр. (
-    const char rbR{'('};
+    const char rbL{'('};
     //Круглая скобка закр. )
-    const char rbL{')'};
+    const char rbR{')'};
     //Кавычка "
     const char marks{'"'};
     //Статус опроса: запущен

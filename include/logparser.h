@@ -73,6 +73,8 @@ class ParseLogSrv : public IBaseParser
     std::pair<bool, std::size_t> is_pointsPolling(const std::string& log) const;
 
     int getId(const std::string&log, std::size_t pos) const;
+
+    std::pair<bool, const std::string> getName(const std::string& log) const;
     
     std::pair<bool, const std::string> findTime(const std::string& log) const;
 
