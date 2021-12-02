@@ -7,6 +7,8 @@ project(Alpha_pars VERSION 0.1.0)
 if (CMAKE_COMPILER_IS_GNUCXX)
 message ("Compiler set options...")
 	add_compile_options(
+        -finput-charset=CP1251 #кодировка исходников
+        -fexec-charset=CP1251 #кодировка исполняемого фала
         -Werror
         -pedantic-errors
         -Wall

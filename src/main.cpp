@@ -24,7 +24,7 @@ int main()
     #ifdef _WIN32
         ConsoleCP console(1251);
     #elif __linux__
-        
+       
     #endif
     
     std::unique_ptr<IBaseParser> pars = std::make_unique<ParseLogSrv>();

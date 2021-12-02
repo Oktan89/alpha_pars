@@ -6,7 +6,7 @@
 #include "pcout.h"
 #include "textprotocol.h"
 
-//Тип интерфейса опроса
+//РўРёРї РёРЅС‚РµСЂС„РµР№СЃР° РѕРїСЂРѕСЃР°
 enum class INTERFACETYPE
 {
     COM,
@@ -14,7 +14,7 @@ enum class INTERFACETYPE
     NONE
 };
 
-//Структура времени в логах АЦ
+//РЎС‚СЂСѓРєС‚СѓСЂР° РІСЂРµРјРµРЅРё РІ Р»РѕРіР°С… РђР¦
 struct Time_stamp
 {
     int day;
@@ -27,12 +27,12 @@ struct Time_stamp
     friend std::ostream& operator<<(std::ostream& out, const Time_stamp& time);
 };
 
-//Временная струтура объекта опроса
+//Р’СЂРµРјРµРЅРЅР°СЏ СЃС‚СЂСѓС‚СѓСЂР° РѕР±СЉРµРєС‚Р° РѕРїСЂРѕСЃР°
 struct ObjectTime
 {
-    Time_stamp start_pool;  //старт опроса
-    Time_stamp end_pool;    //конец опроса
-    Time_stamp next_pool;   //следущий опрос
+    Time_stamp start_pool;  //СЃС‚Р°СЂС‚ РѕРїСЂРѕСЃР°
+    Time_stamp end_pool;    //РєРѕРЅРµС† РѕРїСЂРѕСЃР°
+    Time_stamp next_pool;   //СЃР»РµРґСѓС‰РёР№ РѕРїСЂРѕСЃ
     ObjectTime() : start_pool(), end_pool(), next_pool(){}
 };
 

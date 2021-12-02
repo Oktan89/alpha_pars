@@ -51,7 +51,7 @@ std::pair<bool, std::size_t> ParseLogSrv::is_pollingPoints(const std::string& lo
 {   
     std::size_t pos = log.find(protocol.poll_p);
     if(log.npos != pos)
-        return std::make_pair(true, pos+12);
+        return std::make_pair(true, pos+12);//strlen
     return std::make_pair(false, pos);
 }
 
@@ -82,9 +82,9 @@ std::pair<bool, const std::string> ParseLogSrv::findTime(const std::string& log)
     return std::make_pair(false, log);
 }
 
-int ParseLogSrv::getId(const std::string&log, std::size_t pos) const
+int ParseLogSrv::getId(const std::string& log, std::size_t pos) const
 {
-    std::size_t pos_end = log.find(" ", pos);
+    std::size_t pos_end = log.find_first_of(' ', pos);
     if(pos_end == log.npos)
         return -1;
     return std::stoi(log.substr(pos, pos_end - pos ));
