@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include "pcout.h"
+#include "textprotocol.h"
 
 //Тип интерфейса опроса
 enum class INTERFACETYPE
@@ -39,7 +40,7 @@ struct Interface
     Interface() : type(INTERFACETYPE::NONE), number(-1) {}
 };
 
-struct ObjectAskue
+class ObjectAskue
 {
     int _id;
     std::string _name_point;
@@ -62,6 +63,7 @@ public:
 class ParseLogSrv : public IBaseParser
 {
     std::vector<std::string> _record;
+    PotokolLogSrv protocol;
     Time_stamp convertFindTime(const std::string& time);
     bool brokeRecord(const std::string& log);
 
