@@ -2,6 +2,11 @@
 #include "logparser.h"
 
 
+std::ostream& operator<<(std::ostream& out, const Time_stamp& time)
+{
+    out << time.day<<"/"<<time.mon<<"/"<<time.year<<" "<<time.hour<<":"<<time.min<<":"<<time.sec<<"\n"; 
+    return out;
+}
 
 void ParseLogSrv::parse(const std::string& log)
 {
@@ -9,26 +14,80 @@ void ParseLogSrv::parse(const std::string& log)
     {
         for (const auto &br : _record)
         {
-            //Поиск времени для примера!!!!!
-            std::size_t pos = br.find(protocol.head);
-            if (br.npos != pos)
+            auto poll = is_pollingPoints(br);
+            if(poll.first)
             {
-                std::size_t pos_start = br.find(protocol.sbL);
-                std::size_t pos_end = br.find(protocol.sbR, pos_start);
-                if(pos_start == br.npos)
+                pcout{} << getId(br, poll.second) << std::endl;
+                auto find_t = findTime(br);
+                if(find_t.first)
                 {
-                   pos_start = br.find(protocol.marks);
-                   pos_end = br.find(protocol.marks, pos_start);
+                    auto timestamp = convertFindTime(find_t.second);
+                    pcout{} << timestamp;
                 }
-                Time_stamp t = convertFindTime(br.substr(pos_start + 1, pos_end - pos_start - 1));
-                pcout{} <<t.day<<"/"<<t.mon<<"/"<<t.year<<" "<<t.hour<<":"<<t.min<<":"<<t.sec<<"\n";
             }
-            
+            else
+            {
+                auto poll = is_pointsPolling(br);
+                if(poll.first)
+                {
+                    pcout{} << getId(br, poll.second) << std::endl;
+                    auto find_t = findTime(br);
+                    if(find_t.first)
+                    {
+                        auto timestamp = convertFindTime(find_t.second);
+                        pcout{} << timestamp;
+                    }
+                }
+            }
         }
     }
 }
 
-Time_stamp ParseLogSrv::convertFindTime(const std::string& time)
+//Содержит строка {опрос точки}?
+std::pair<bool, std::size_t> ParseLogSrv::is_pollingPoints(const std::string& log) const
+{   
+    std::size_t pos = log.find(protocol.poll_p);
+    if(log.npos != pos)
+        return std::make_pair(true, pos+12);
+    return std::make_pair(false, pos);
+}
+
+//Содержит строка {точка опроса}?
+std::pair<bool, std::size_t> ParseLogSrv::is_pointsPolling(const std::string &log) const
+{
+    std::size_t pos = log.find(protocol.p_poll);
+    if (log.npos != pos)
+        return std::make_pair(true, pos+13);
+    return std::make_pair(false, pos);
+}
+
+//Поиск времени если найден true и ссылка на кусочек с временем
+std::pair<bool, const std::string> ParseLogSrv::findTime(const std::string& log) const
+{
+    std::size_t pos = log.find(protocol.head);
+    if (log.npos != pos)
+    {
+        std::size_t pos_start = log.find(protocol.sbL);
+        std::size_t pos_end =log.find(protocol.sbR, pos_start);
+        if (pos_start == log.npos)
+        {
+            pos_start = log.find(protocol.marks);
+            pos_end = log.find(protocol.marks, pos_start);
+        }
+        return std::make_pair(true, log.substr(pos_start + 1, pos_end - pos_start - 1));
+    }
+    return std::make_pair(false, log);
+}
+
+int ParseLogSrv::getId(const std::string&log, std::size_t pos) const
+{
+    std::size_t pos_end = log.find(" ", pos);
+    if(pos_end == log.npos)
+        return -1;
+    return std::stoi(log.substr(pos, pos_end));
+}
+
+Time_stamp ParseLogSrv::convertFindTime(const std::string& time) const
 {
     Time_stamp ts;
     

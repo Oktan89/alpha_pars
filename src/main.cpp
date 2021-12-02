@@ -47,7 +47,8 @@ int main()
         for(auto run = logreader.start(askue, 500); run ; run = logreader.status())
         {
             askue->wait_and_pop(test);
-            pcout{} << test;
+           // pars->parse(test);
+           pcout{} << test;
             //logreader.stop();          
         }
         

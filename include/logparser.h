@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <map>
+#include <utility>
+#include <ostream>
 #include "pcout.h"
 #include "textprotocol.h"
 
@@ -22,6 +24,7 @@ struct Time_stamp
     int min;
     int sec;
     Time_stamp():day(), mon(), year(), hour(), min(), sec(){}
+    friend std::ostream& operator<<(std::ostream& out, const Time_stamp& time);
 };
 
 //Временная струтура объекта опроса
@@ -64,7 +67,17 @@ class ParseLogSrv : public IBaseParser
 {
     std::vector<std::string> _record;
     PotokolLogSrv protocol;
-    Time_stamp convertFindTime(const std::string& time);
+
+    std::pair<bool, std::size_t> is_pollingPoints(const std::string& log) const;
+
+    std::pair<bool, std::size_t> is_pointsPolling(const std::string& log) const;
+
+    int getId(const std::string&log, std::size_t pos) const;
+    
+    std::pair<bool, const std::string> findTime(const std::string& log) const;
+
+    Time_stamp convertFindTime(const std::string& time) const;
+
     bool brokeRecord(const std::string& log);
 
 public:
