@@ -1,12 +1,15 @@
 #pragma once
 #include <string>
-#include <map>
+#include <vector>
 #include <utility>
 #include <ostream>
+#include <mutex>
+#include <memory>
 #include "pcout.h"
+#include <database.h>
 #include "textprotocol.h"
 
-//РўРёРї РёРЅС‚РµСЂС„РµР№СЃР° РѕРїСЂРѕСЃР°
+//Тип интерфейса опроса
 enum class INTERFACETYPE
 {
     COM,
@@ -14,7 +17,15 @@ enum class INTERFACETYPE
     NONE
 };
 
-//РЎС‚СЂСѓРєС‚СѓСЂР° РІСЂРµРјРµРЅРё РІ Р»РѕРіР°С… РђР¦
+enum class STATUSOBJECT
+{
+    START_POLL,
+    STOP_POLL,
+    WAIT_START_POLL,
+    UNKNOWN
+};
+
+//Структура времени в логах АЦ
 struct Time_stamp
 {
     int day;
@@ -27,12 +38,12 @@ struct Time_stamp
     friend std::ostream& operator<<(std::ostream& out, const Time_stamp& time);
 };
 
-//Р’СЂРµРјРµРЅРЅР°СЏ СЃС‚СЂСѓС‚СѓСЂР° РѕР±СЉРµРєС‚Р° РѕРїСЂРѕСЃР°
+//Временная струтура объекта опроса
 struct ObjectTime
 {
-    Time_stamp start_pool;  //СЃС‚Р°СЂС‚ РѕРїСЂРѕСЃР°
-    Time_stamp end_pool;    //РєРѕРЅРµС† РѕРїСЂРѕСЃР°
-    Time_stamp next_pool;   //СЃР»РµРґСѓС‰РёР№ РѕРїСЂРѕСЃ
+    Time_stamp start_pool;  //старт опроса
+    Time_stamp end_pool;    //конец опроса
+    Time_stamp next_pool;   //следущий опрос
     ObjectTime() : start_pool(), end_pool(), next_pool(){}
 };
 
@@ -49,9 +60,27 @@ class ObjectAskue
     std::string _name_point;
     Interface _interface;
     ObjectTime _time;
-
+    STATUSOBJECT _status;
+    mutable std::mutex _mutex;
 public:
-    ObjectAskue() : _id(), _name_point("unknown"), _interface(), _time() {}
+    ObjectAskue() : 
+    _id(), _name_point("unknown"), _interface(), _time(), _status(STATUSOBJECT::UNKNOWN) {}
+    
+    ObjectAskue(const ObjectAskue& object);
+    
+    ObjectAskue& operator=(const ObjectAskue& other);
+    
+    ~ObjectAskue(){}
+
+    void setId(int id);
+    int getId() const;
+
+    void setName(const std::string& name);
+    std::string getName() const;
+
+    void setTime(const STATUSOBJECT status, const Time_stamp& time);
+
+    Time_stamp getStatusTime() const;
 
 };
 
@@ -67,6 +96,7 @@ class ParseLogSrv : public IBaseParser
 {
     std::vector<std::string> _record;
     PotokolLogSrv protocol;
+    std::shared_ptr<Database> _data;
 
     std::pair<bool, std::size_t> is_pollingPoints(const std::string& log) const;
 
@@ -80,10 +110,10 @@ class ParseLogSrv : public IBaseParser
 
     Time_stamp convertFindTime(const std::string& time) const;
 
-    bool brokeRecord(const std::string& log);
+    bool splitRecord(const std::string& log);
 
 public:
-
+    ParseLogSrv(std::shared_ptr<Database> data) : _data(data){}
     void parse(const std::string& log) override;
 
     ~ParseLogSrv(){}

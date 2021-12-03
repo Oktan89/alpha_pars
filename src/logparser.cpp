@@ -10,17 +10,20 @@ std::ostream& operator<<(std::ostream& out, const Time_stamp& time)
 
 void ParseLogSrv::parse(const std::string& log)
 {
-    if (brokeRecord(log))
+    ObjectAskue askue;
+    if (splitRecord(log))
     {
         for (const auto &br : _record)
         {
             auto poll = is_pollingPoints(br);
             if(poll.first)
             {
-                pcout{} << getId(br, poll.second) << std::endl;//-1 error
+                //pcout{} << getId(br, poll.second) << std::endl;//-1 error
+                askue.setId(getId(br, poll.second));
                 auto name = getName(br);
                 if(name.first)
-                    pcout{} << name.second << std::endl;
+                    askue.setName(name.second);
+                   // pcout{} << name.second << std::endl;
                 auto find_t = findTime(br);
                 if(find_t.first)
                 {
@@ -33,15 +36,18 @@ void ParseLogSrv::parse(const std::string& log)
                 auto poll = is_pointsPolling(br);
                 if(poll.first)
                 {
-                    pcout{} << getId(br, poll.second) << std::endl;
+                    //pcout{} << getId(br, poll.second) << std::endl;
+                    askue.setId(getId(br, poll.second));
                     auto find_t = findTime(br);
                     if(find_t.first)
                     {
                         auto timestamp = convertFindTime(find_t.second);
+                        askue.setTime(STATUSOBJECT::WAIT_START_POLL, timestamp);
                         pcout{} << timestamp;
                     }
                 }
             }
+            _data->setObject(askue);
         }
     }
 }
@@ -118,7 +124,7 @@ Time_stamp ParseLogSrv::convertFindTime(const std::string& time) const
     return ts;
 }
 
-bool ParseLogSrv::brokeRecord(const std::string &log)
+bool ParseLogSrv::splitRecord(const std::string &log)
 {
     //ищем первое вхождение ***
     std::size_t start_pos = log.find(protocol.head);
@@ -144,7 +150,107 @@ bool ParseLogSrv::brokeRecord(const std::string &log)
         }
     }
     //For debug
-     for(const auto& l : _record)
-        pcout{} << l;
+    /* for(const auto& l : _record)
+        pcout{} << l;*/
     return !_record.empty();
+}
+
+void ObjectAskue::setId(int id)
+{
+    std::lock_guard<std::mutex> lg(_mutex);
+    _id = id;
+}
+
+int ObjectAskue::getId() const
+{
+    std::lock_guard<std::mutex> lg(_mutex);
+    return _id;
+}
+
+void ObjectAskue::setName(const std::string& name)
+{
+    std::lock_guard<std::mutex> lg(_mutex);
+    _name_point = name;
+}
+
+std::string ObjectAskue::getName() const
+{
+    std::lock_guard<std::mutex> lg(_mutex);
+    return _name_point;
+}
+
+void ObjectAskue::setTime(const STATUSOBJECT status, const Time_stamp& time)
+{
+    std::lock_guard<std::mutex> lg(_mutex);
+
+    switch (status)
+    {
+    case STATUSOBJECT::START_POLL:
+        _time.start_pool = time;
+        break;
+    case STATUSOBJECT::STOP_POLL :
+        _time.end_pool = time;
+        break;
+    
+    case STATUSOBJECT::WAIT_START_POLL :
+        _time.next_pool = time;
+        break;
+    
+    case STATUSOBJECT::UNKNOWN :
+        pcout{} <<"set time unknown\n";
+        break;
+    
+    default:
+        pcout{} <<"set time error\n";
+        _status = STATUSOBJECT::UNKNOWN;
+        break;
+    }
+
+    _status = status;
+}
+
+Time_stamp ObjectAskue::getStatusTime() const
+{
+    std::lock_guard<std::mutex> lg(_mutex);
+    Time_stamp time{};
+
+    switch (_status)
+    {
+    case STATUSOBJECT::START_POLL:
+        time = _time.start_pool;
+        break;
+    case STATUSOBJECT::STOP_POLL :
+        time = _time.end_pool;
+        break;
+    
+    case STATUSOBJECT::WAIT_START_POLL :
+        time = _time.next_pool;
+        break;
+    
+    case STATUSOBJECT::UNKNOWN :
+   
+    default:
+        pcout{} <<"get time error\n";
+        break;
+    }
+    return time;
+}
+
+ObjectAskue::ObjectAskue(const ObjectAskue& object) :
+ _id(object._id), _name_point(object._name_point), _interface(object._interface),
+ _time(object._time), _status(object._status)
+{
+
+}
+
+ObjectAskue& ObjectAskue::operator=(const ObjectAskue& other)
+{
+    if(this == &other)
+        return *this;
+    _id = other._id;
+    _name_point = other._name_point;
+    _interface = other._interface;
+    _time = other._time;
+    _status = other._status;
+    return *this;
 }
