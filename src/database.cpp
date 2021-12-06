@@ -7,7 +7,7 @@ void Database::setObject(ObjectAskue& askue)
         auto it = _db.find(askue.getId());
         if(it != _db.end())
         {
-            std::swap(it->second, askue);
+            std::swap(it->second, askue); // swap не пойдет, нужно по члено
             pcout{} <<it->second.getName() << " : update\n";
         }
         else
