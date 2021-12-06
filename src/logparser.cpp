@@ -1,4 +1,5 @@
 #include <vector>
+#include <cstring>
 #include "logparser.h"
 
 
@@ -10,11 +11,11 @@ std::ostream& operator<<(std::ostream& out, const Time_stamp& time)
 
 void ParseLogSrv::parse(const std::string& log)
 {
-    ObjectAskue askue;
     if (splitRecord(log))
     {
         for (const auto &br : _record)
         {
+            ObjectAskue askue;
             auto poll = is_pollingPoints(br);
             if(poll.first)
             {
@@ -25,10 +26,30 @@ void ParseLogSrv::parse(const std::string& log)
                     askue.setName(name.second);
                    // pcout{} << name.second << std::endl;
                 auto find_t = findTime(br);
+                Time_stamp timestamp;
                 if(find_t.first)
                 {
-                    auto timestamp = convertFindTime(find_t.second);
-                    pcout{} << timestamp;
+                    timestamp = convertFindTime(find_t.second);
+                   /// pcout{} << timestamp;
+                }
+                auto status = pollingStatusStartStop(br);
+                if(status.first)
+                {
+                    if(status.second == STATUSOBJECT::START_POLL)
+                    {
+                        askue.setTime(status.second, timestamp);
+                        auto port = getPort(br);
+                        if(port.first)
+                            askue.setInterface(port.second);
+                    }
+                    else if(status.second == STATUSOBJECT::STOP_POLL)
+                    {
+                        askue.setTime(status.second, timestamp);
+                    }
+                    else if(status.second == STATUSOBJECT::UNKNOWN)
+                    {
+                        askue.setTime(status.second, timestamp);
+                    }
                 }
             }
             else
@@ -57,7 +78,7 @@ std::pair<bool, std::size_t> ParseLogSrv::is_pollingPoints(const std::string& lo
 {   
     std::size_t pos = log.find(protocol.poll_p);
     if(log.npos != pos)
-        return std::make_pair(true, pos+12);//strlen
+        return std::make_pair(true, pos+12);//strlen!!!
     return std::make_pair(false, pos);
 }
 
@@ -70,6 +91,41 @@ std::pair<bool, std::size_t> ParseLogSrv::is_pointsPolling(const std::string &lo
     return std::make_pair(false, pos);
 }
 
+std::pair<bool, STATUSOBJECT> ParseLogSrv::pollingStatusStartStop(const std::string& log, std::size_t pos) const
+{
+    std::size_t pos_s = log.find(protocol.status_start, pos);
+        if(log.npos != pos_s)
+        {
+            return std::make_pair(true, STATUSOBJECT::START_POLL);
+        }
+    pos_s = log.find(protocol.status_stop, pos);
+        if(log.npos != pos_s)
+        {
+            return std::make_pair(true, STATUSOBJECT::STOP_POLL);
+        }
+    return std::make_pair(false, STATUSOBJECT::UNKNOWN);
+}
+
+std::pair<bool, Interface> ParseLogSrv::getPort(const std::string& log, std::size_t pos) const
+{
+    Interface port;
+    std::size_t pos_s = log.find(protocol.portCom, pos);
+        if(log.npos != pos_s)
+        {
+            port.type = INTERFACETYPE::COM;
+            port.number = std::stoi(log.substr(pos_s+std::strlen(protocol.portCom)));
+            return std::make_pair(true, port);
+        }
+    pos_s = log.find(protocol.postTcp, pos);
+        if(log.npos != pos_s)
+        {
+            port.type = INTERFACETYPE::TCP;
+            port.number = -1;
+            return std::make_pair(true, port);
+        }
+
+    return std::make_pair(false, port);
+}
 //Поиск времени если найден true и ссылка на кусочек с временем
 std::pair<bool, const std::string> ParseLogSrv::findTime(const std::string& log) const
 {
@@ -234,6 +290,11 @@ Time_stamp ObjectAskue::getStatusTime() const
         break;
     }
     return time;
+}
+
+void ObjectAskue::setInterface(const Interface& port)
+{
+    _interface = port;
 }
 
 ObjectAskue::ObjectAskue(const ObjectAskue& object) :

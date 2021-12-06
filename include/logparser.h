@@ -79,8 +79,9 @@ public:
     std::string getName() const;
 
     void setTime(const STATUSOBJECT status, const Time_stamp& time);
-
     Time_stamp getStatusTime() const;
+
+    void setInterface(const Interface& port);
 
 };
 
@@ -102,7 +103,12 @@ class ParseLogSrv : public IBaseParser
 
     std::pair<bool, std::size_t> is_pointsPolling(const std::string& log) const;
 
+    //Вызввать только после is_pollingPoints или is_pointsPolling
     int getId(const std::string&log, std::size_t pos) const;
+
+    std::pair<bool, STATUSOBJECT> pollingStatusStartStop(const std::string& log, std::size_t pos = 0) const;
+
+    std::pair<bool, Interface> getPort(const std::string& log, std::size_t pos = 0) const;
 
     std::pair<bool, const std::string> getName(const std::string& log) const;
     
@@ -111,7 +117,7 @@ class ParseLogSrv : public IBaseParser
     Time_stamp convertFindTime(const std::string& time) const;
 
     bool splitRecord(const std::string& log);
-
+    
 public:
     ParseLogSrv(std::shared_ptr<Database> data) : _data(data){}
     void parse(const std::string& log) override;

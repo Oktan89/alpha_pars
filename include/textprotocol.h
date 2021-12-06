@@ -25,9 +25,9 @@ struct PotokolLogSrv
     //Статус опроса: завершился
     const char* status_stop{"завершился"};
     //Тип порта: COM
-    const char* portCom{"порт СОМ"};
+    const char* portCom{"порт COM"};
     //Тип порта: TCP
-    const char* postTcp{"порт ТСР"};
+    const char* postTcp{"порт TCP"};
     //Опрос точки: опрос точки
     const char* poll_p{"опрос точки"};
     //Точка опроса: точка опроса
