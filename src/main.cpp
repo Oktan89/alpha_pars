@@ -51,6 +51,7 @@ int main()
         {
            askue->wait_and_pop(test);
            pars->parse(test);
+           test.clear();
         }
         
     }

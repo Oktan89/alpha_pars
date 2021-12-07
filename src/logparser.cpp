@@ -5,75 +5,91 @@
 
 std::ostream& operator<<(std::ostream& out, const Time_stamp& time)
 {
-    out << time.day<<"/"<<time.mon<<"/"<<time.year<<" "<<time.hour<<":"<<time.min<<":"<<time.sec<<"\n"; 
+    out << time.day<<"/"<<time.mon<<"/"<<time.year<<" "<<time.hour<<":"<<time.min<<":"<<time.sec; 
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const ObjectAskue& askue)
+{
+    pcout{} <<"[--------------------]\n";
+    pcout{} <<"[ID  : "<< askue.getId() <<" ]\n";
+    pcout{} <<"[NAME: "<< askue.getName()<<" ]\n";
+    pcout{} <<"[TIME:"<< askue.getStatusTime()<<" ]\n";
+    pcout{} <<"[--------------------]";
     return out;
 }
 
 void ParseLogSrv::parse(const std::string& log)
 {
+    if(log.empty())
+        return;
     if (splitRecord(log))
     {
         for (const auto &br : _record)
         {
             ObjectAskue askue;
-            auto poll = is_pollingPoints(br);
-            if(poll.first)
+           
+            if(auto [ok, size] = is_pollingPoints(br); ok)
             {
-                //pcout{} << getId(br, poll.second) << std::endl;//-1 error
-                askue.setId(getId(br, poll.second));
-                auto name = getName(br);
-                if(name.first)
-                    askue.setName(name.second);
-                   // pcout{} << name.second << std::endl;
-                auto find_t = findTime(br);
+                askue.setId(getId(br, size));
+                
+                if(auto [ok, name_s] = getName(br); ok)
+                {
+                     askue.setName(name_s);
+                } else {pcout{} << "[ParserLogSvr] Error get name\n"; break;}
+
                 Time_stamp timestamp;
-                if(find_t.first)
+                if(auto [ok, time_f] = findTime(br); ok)
                 {
-                    timestamp = convertFindTime(find_t.second);
-                   /// pcout{} << timestamp;
-                }
-                auto status = pollingStatusStartStop(br);
-                if(status.first)
+                    timestamp = convertFindTime(time_f);
+                }else {pcout{} << "[ParserLogSvr] Error find time start-stop\n"; break;}
+                
+                if(auto [ok, status_poll] = pollingStatusStartStop(br); ok)
                 {
-                    if(status.second == STATUSOBJECT::START_POLL)
+                    if(status_poll == STATUSOBJECT::START_POLL)
                     {
-                        askue.setTime(status.second, timestamp);
-                        auto port = getPort(br);
-                        if(port.first)
-                            askue.setInterface(port.second);
+                        askue.setTime(status_poll, timestamp);
+                        
+                        if(auto [ok, port] = getPort(br); ok)
+                        {
+                            askue.setInterface(port);
+                        }else {pcout{} << "[ParserLogSvr] Error get port\n"; break;}
                     }
-                    else if(status.second == STATUSOBJECT::STOP_POLL)
+                    else if(status_poll == STATUSOBJECT::STOP_POLL)
                     {
-                        askue.setTime(status.second, timestamp);
+                        askue.setTime(status_poll, timestamp);
+                        //Разбор успешноснти опроса....
                     }
-                    else if(status.second == STATUSOBJECT::UNKNOWN)
+                    else if(status_poll == STATUSOBJECT::UNKNOWN)
                     {
-                        askue.setTime(status.second, timestamp);
+                        askue.setTime(status_poll, timestamp);
                     }
-                }
+                }else {pcout{} << "[ParserLogSvr] Error status start-stop\n"; break;}
+                _data->setObject(askue);
+            }
+            else if(auto [ok, size] = is_pointsPolling(br); ok)
+            {
+                askue.setId(getId(br, size));
+                if(auto [ok, s_time] = findTime(br); ok)
+                {
+                    auto timestamp = convertFindTime(s_time);
+                    askue.setTime(STATUSOBJECT::WAIT_START_POLL, timestamp);
+                }else {pcout{} << "[ParserLogSvr] Error find time next poll\n"; break;}
+                _data->setObject(askue);
             }
             else
             {
-                auto poll = is_pointsPolling(br);
-                if(poll.first)
-                {
-                    //pcout{} << getId(br, poll.second) << std::endl;
-                    askue.setId(getId(br, poll.second));
-                    auto find_t = findTime(br);
-                    if(find_t.first)
-                    {
-                        auto timestamp = convertFindTime(find_t.second);
-                        askue.setTime(STATUSOBJECT::WAIT_START_POLL, timestamp);
-                        pcout{} << timestamp;
-                    }
-                }
+                pcout{} << "[ParserLogSvr] String not parse... start\n";
+                pcout{} << br <<"\n";
+                pcout{} << "[ParserLogSvr] String not parse... end\n";
+                //Проверка на другие сообщения об шиках в логах
             }
-            _data->setObject(askue);
+            
         }
-    }
+    }else {pcout{} << "[ParserLogSvr] Error Not find head log string\n";}
 }
 
-//РЎРѕРґРµСЂР¶РёС‚ СЃС‚СЂРѕРєР° {РѕРїСЂРѕСЃ С‚РѕС‡РєРё}?
+//Содержит строка {опрос точки}?
 std::pair<bool, std::size_t> ParseLogSrv::is_pollingPoints(const std::string& log) const
 {   
     std::size_t pos = log.find(protocol.poll_p);
@@ -82,7 +98,7 @@ std::pair<bool, std::size_t> ParseLogSrv::is_pollingPoints(const std::string& lo
     return std::make_pair(false, pos);
 }
 
-//РЎРѕРґРµСЂР¶РёС‚ СЃС‚СЂРѕРєР° {С‚РѕС‡РєР° РѕРїСЂРѕСЃР°}?
+//Содержит строка {точка опроса}?
 std::pair<bool, std::size_t> ParseLogSrv::is_pointsPolling(const std::string &log) const
 {
     std::size_t pos = log.find(protocol.p_poll);
@@ -91,6 +107,7 @@ std::pair<bool, std::size_t> ParseLogSrv::is_pointsPolling(const std::string &lo
     return std::make_pair(false, pos);
 }
 
+//Содержит строка {запущен или завершился}?
 std::pair<bool, STATUSOBJECT> ParseLogSrv::pollingStatusStartStop(const std::string& log, std::size_t pos) const
 {
     std::size_t pos_s = log.find(protocol.status_start, pos);
@@ -106,6 +123,7 @@ std::pair<bool, STATUSOBJECT> ParseLogSrv::pollingStatusStartStop(const std::str
     return std::make_pair(false, STATUSOBJECT::UNKNOWN);
 }
 
+//Тип порта COM или TCP?
 std::pair<bool, Interface> ParseLogSrv::getPort(const std::string& log, std::size_t pos) const
 {
     Interface port;
@@ -126,7 +144,7 @@ std::pair<bool, Interface> ParseLogSrv::getPort(const std::string& log, std::siz
 
     return std::make_pair(false, port);
 }
-//РџРѕРёСЃРє РІСЂРµРјРµРЅРё РµСЃР»Рё РЅР°Р№РґРµРЅ true Рё СЃСЃС‹Р»РєР° РЅР° РєСѓСЃРѕС‡РµРє СЃ РІСЂРµРјРµРЅРµРј
+//Поиск времени если найден true и ссылка на кусочек с временем
 std::pair<bool, const std::string> ParseLogSrv::findTime(const std::string& log) const
 {
     std::size_t pos = log.find(protocol.head);
@@ -182,26 +200,26 @@ Time_stamp ParseLogSrv::convertFindTime(const std::string& time) const
 
 bool ParseLogSrv::splitRecord(const std::string &log)
 {
-    //РёС‰РµРј РїРµСЂРІРѕРµ РІС…РѕР¶РґРµРЅРёРµ ***
+    //ищем первое вхождение ***
     std::size_t start_pos = log.find(protocol.head);
-    //РµСЃР»Рё РЅР°С€Р»Рё
+    //если нашли
     while (start_pos != log.npos)
     {
-        //РёС‰РµРј СЃР»РµРґСѓСЋС‰РµРµ
+        //ищем следующее
         std::size_t end_pos = log.find(protocol.head, start_pos + 3);
-        //РµСЃР»Рё Р±РѕР»СЊС€Рµ РЅРµС‚ С‚Рѕ Р·Р°РїРёСЃС‹РІР°РµРј РІСЃСЋ СЃС‚СЂРѕРєСѓ РѕС‚ start
+        //если больше нет то записываем всю строку от start
         if (end_pos == log.npos)
         {
             _record.push_back(log.substr(start_pos));
-            //Рё Р·Р°РІРµСЂС€Р°РµРј С†РёРєР»
+            //и завершаем цикл
             start_pos = end_pos;
         }
-        //РµСЃР»Рё РЅР°Р№РґРµРЅРѕ СЃР»РµРґСѓСЋС‰РµРµ РІС…РѕР¶РґРµРЅРёРµ ***
+        //если найдено следующее вхождение ***
         else
         {
-            //Р·Р°РїРёСЃС‹РІР°РµРј СЃС‚СЂРѕРєСѓ РѕС‚ start РґРѕ end -1
+            //записываем строку от start до end -1
            _record.push_back(log.substr(start_pos, end_pos - start_pos));
-            //Р·Р°РґР°РµРј СЃР»РµРґСѓСЋС‰РµРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ РїРѕРёСЃРєР° *** РѕС‚ end
+            //задаем следующее значение для поиска *** от end
             start_pos = end_pos;
         }
     }

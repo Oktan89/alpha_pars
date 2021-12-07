@@ -62,6 +62,7 @@ class ObjectAskue
     ObjectTime _time;
     STATUSOBJECT _status;
     mutable std::mutex _mutex;
+    friend std::ostream& operator<<(std::ostream& out, const ObjectAskue& askue);
 public:
     ObjectAskue() : 
     _id(), _name_point("unknown"), _interface(), _time(), _status(STATUSOBJECT::UNKNOWN) {}

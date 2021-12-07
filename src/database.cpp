@@ -7,12 +7,15 @@ void Database::setObject(ObjectAskue& askue)
         auto it = _db.find(askue.getId());
         if(it != _db.end())
         {
-            std::swap(it->second, askue); // swap –Ω–µ –ø–æ–π–¥–µ—Ç, –Ω—É–∂–Ω–æ –ø–æ —á–ª–µ–Ω–æ
-            pcout{} <<it->second.getName() << " : update\n";
+            std::swap(it->second, askue);
+            //it->second.setName(askue.getName());//?????
+            pcout{} << "Œ·˙ÂÍÚ Ó·ÌÓ‚ÎÂÌ" << "\n";
+            pcout{} << it->second << "\n";
         }
         else
         {
             auto obj =_db[askue.getId()] = askue;
-            pcout{} <<obj.getName() << ": add\n";
+            pcout{} << "Œ·˙ÂÍÚ ‰Ó·‡‚ÎÂÌ" << "\n";
+            pcout{} << obj <<"\n";
         }
     }
