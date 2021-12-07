@@ -50,6 +50,7 @@ int main()
         for(auto run = logreader.start(askue, 500); run ; run = logreader.status())
         {
            askue->wait_and_pop(test);
+           pcout{} <<" Map size: "<< askue->size() << "\n";
            pars->parse(test);
            test.clear();
         }

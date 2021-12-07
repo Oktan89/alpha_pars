@@ -94,7 +94,7 @@ std::pair<bool, std::size_t> ParseLogSrv::is_pollingPoints(const std::string& lo
 {   
     std::size_t pos = log.find(protocol.poll_p);
     if(log.npos != pos)
-        return std::make_pair(true, pos+12);//strlen!!!
+        return std::make_pair(true, (++pos)+std::strlen(protocol.poll_p));
     return std::make_pair(false, pos);
 }
 
@@ -103,7 +103,7 @@ std::pair<bool, std::size_t> ParseLogSrv::is_pointsPolling(const std::string &lo
 {
     std::size_t pos = log.find(protocol.p_poll);
     if (log.npos != pos)
-        return std::make_pair(true, pos+13);
+        return std::make_pair(true, (++pos)+std::strlen(protocol.p_poll));
     return std::make_pair(false, pos);
 }
 
@@ -186,15 +186,21 @@ std::pair<bool, const std::string> ParseLogSrv::getName(const std::string& log) 
 
 Time_stamp ParseLogSrv::convertFindTime(const std::string& time) const
 {
-    Time_stamp ts;
-    
-    ts.day = std::stoi(time.substr(0, 2));
-    ts.mon = std::stoi(time.substr(3, 2));
-    ts.year = std::stoi(time.substr(6, 4));
-    ts.hour = std::stoi(time.substr(11, 2));
-    ts.min = std::stoi(time.substr(14, 2));
-    ts.sec = std::stoi(time.substr(17, 2));
-    
+    Time_stamp ts{};
+    try
+    {
+        ts.day = std::stoi(time.substr(0, 2));
+        ts.mon = std::stoi(time.substr(3, 2));
+        ts.year = std::stoi(time.substr(6, 4));
+        ts.hour = std::stoi(time.substr(11, 2));
+        ts.min = std::stoi(time.substr(14, 2));
+        ts.sec = std::stoi(time.substr(17, 2));
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr <<"[ParserLogSvr] convert find time :" << e.what() << '\n';
+    }
+
     return ts;
 }
 
@@ -206,7 +212,7 @@ bool ParseLogSrv::splitRecord(const std::string &log)
     while (start_pos != log.npos)
     {
         //ищем следующее
-        std::size_t end_pos = log.find(protocol.head, start_pos + 3);
+        std::size_t end_pos = log.find(protocol.head, start_pos + std::strlen(protocol.head));
         //если больше нет то записываем всю строку от start
         if (end_pos == log.npos)
         {
