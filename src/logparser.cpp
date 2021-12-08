@@ -50,8 +50,14 @@ void ParseLogSrv::parse(const std::string& log)
                     {
                         askue.setTime(status_poll, timestamp);
                         std::vector<std::string> err;
-                        splitRecord(br, err, "\n\tопрос");
-                        err.size();
+                        if(splitRecord(br, err, "\n\tопрос"))
+                        {
+                            for(const auto &e : err)
+                            {
+                                pcout{} << e <<"\n"; // Разбор строк опрос звершился успешно
+                            }
+                        }else {pcout{} << "[ParserLogSvr] Error Not find info status poll\n";}
+                        
                     }
                     else if(status_poll == STATUSOBJECT::UNKNOWN)
                     {
