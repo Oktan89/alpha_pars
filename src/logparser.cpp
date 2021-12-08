@@ -9,15 +9,6 @@ std::ostream& operator<<(std::ostream& out, const Time_stamp& time)
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const ObjectAskue& askue)
-{
-    pcout{} <<"[--------------------]\n";
-    pcout{} <<"[ID  : "<< askue.getId() <<" ]\n";
-    pcout{} <<"[NAME: "<< askue.getName()<<" ]\n";
-    pcout{} <<"[TIME:"<< askue.getStatusTime()<<" ]\n";
-    pcout{} <<"[--------------------]";
-    return out;
-}
 
 void ParseLogSrv::parse(const std::string& log)
 {
@@ -322,6 +313,57 @@ void ObjectAskue::setInterface(const Interface& port)
     _interface = port;
 }
 
+Interface ObjectAskue::getInterface() const
+{
+    return _interface;
+}
+
+std::string ObjectAskue::getInetrface_s() const
+{
+    std::string type;
+    switch (_interface.type)
+    {
+    case INTERFACETYPE::COM: 
+        type = "COM" + std::to_string(_interface.number);
+        break;
+    case INTERFACETYPE::TCP:
+        type = "TCP";
+        break;
+    case INTERFACETYPE::NONE:
+    default:
+        type = "unknown";
+        break;
+    }
+    return type;
+}
+
+STATUSOBJECT ObjectAskue::getStatus() const
+{
+    return _status;
+}
+
+std::string ObjectAskue::getStatus_s() const
+{
+    std::string status;
+    switch (_status)
+    {
+    case STATUSOBJECT::START_POLL:
+        status = "Опрос запущен";
+        break;
+    case STATUSOBJECT::STOP_POLL:
+        status = "Опрос завершился";
+        break;
+    case STATUSOBJECT::WAIT_START_POLL:
+         status = "Следующий опрос";
+        break;
+    case STATUSOBJECT::UNKNOWN:
+    default:
+        status = "unknown";
+        break;
+    }
+    return status;
+}
+
 ObjectAskue::ObjectAskue(const ObjectAskue& object) :
  _id(object._id), _name_point(object._name_point), _interface(object._interface),
  _time(object._time), _status(object._status)
@@ -333,8 +375,16 @@ ObjectAskue& ObjectAskue::operator=(const ObjectAskue& other)
 {
     if(this == &other)
         return *this;
-    _id = other._id;
-    _name_point = other._name_point;
+    if(_id == other._id)
+    {
+        if(_name_point == "unknown")
+            _name_point = other._name_point;
+    }
+    else
+    {
+        _id = other._id;
+        _name_point = other._name_point;
+    }
     _interface = other._interface;
     _time = other._time;
     _status = other._status;

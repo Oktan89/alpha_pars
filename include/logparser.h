@@ -83,6 +83,11 @@ public:
     Time_stamp getStatusTime() const;
 
     void setInterface(const Interface& port);
+    Interface getInterface() const;
+    std::string getInetrface_s() const;
+
+    STATUSOBJECT getStatus() const;
+    std::string getStatus_s() const;
 
 };
 

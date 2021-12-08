@@ -13,3 +13,5 @@ class Database
 public:
     void setObject(ObjectAskue& askue);
 };
+
+void show(const ObjectAskue& askue);
