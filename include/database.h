@@ -14,4 +14,4 @@ public:
     void setObject(ObjectAskue& askue);
 };
 
-void show(const ObjectAskue& askue);
+void showAskue(const ObjectAskue& askue);

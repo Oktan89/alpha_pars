@@ -14,7 +14,7 @@ void ParseLogSrv::parse(const std::string& log)
 {
     if(log.empty())
         return;
-    if (splitRecord(log))
+    if (splitRecord(log, _record, protocol.head))
     {
         for (const auto &br : _record)
         {
@@ -49,7 +49,9 @@ void ParseLogSrv::parse(const std::string& log)
                     else if(status_poll == STATUSOBJECT::STOP_POLL)
                     {
                         askue.setTime(status_poll, timestamp);
-                        //Разбор успешноснти опроса....
+                        std::vector<std::string> err;
+                        splitRecord(br, err, "\n\tопрос");
+                        err.size();
                     }
                     else if(status_poll == STATUSOBJECT::UNKNOWN)
                     {
@@ -196,19 +198,19 @@ Time_stamp ParseLogSrv::convertFindTime(const std::string& time) const
     return ts;
 }
 
-bool ParseLogSrv::splitRecord(const std::string &log)
+bool ParseLogSrv::splitRecord(const std::string& log, std::vector<std::string> &record, const char* head)
 {
     //ищем первое вхождение ***
-    std::size_t start_pos = log.find(protocol.head);
+    std::size_t start_pos = log.find(head);
     //если нашли
     while (start_pos != log.npos)
     {
         //ищем следующее
-        std::size_t end_pos = log.find(protocol.head, start_pos + std::strlen(protocol.head));
+        std::size_t end_pos = log.find(head, start_pos + std::strlen(head));
         //если больше нет то записываем всю строку от start
         if (end_pos == log.npos)
         {
-            _record.push_back(log.substr(start_pos));
+            record.push_back(log.substr(start_pos));
             //и завершаем цикл
             start_pos = end_pos;
         }
@@ -216,15 +218,15 @@ bool ParseLogSrv::splitRecord(const std::string &log)
         else
         {
             //записываем строку от start до end -1
-           _record.push_back(log.substr(start_pos, end_pos - start_pos));
+           record.push_back(log.substr(start_pos, end_pos - start_pos));
             //задаем следующее значение для поиска *** от end
-            start_pos = end_pos;
+           start_pos = end_pos;
         }
     }
     //For debug
     /* for(const auto& l : _record)
         pcout{} << l;*/
-    return !_record.empty();
+    return !record.empty();
 }
 
 void ObjectAskue::setId(int id)

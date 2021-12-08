@@ -122,7 +122,7 @@ class ParseLogSrv : public IBaseParser
 
     Time_stamp convertFindTime(const std::string& time) const;
 
-    bool splitRecord(const std::string& log);
+    bool splitRecord(const std::string& log, std::vector<std::string> &record, const char* head);
     
 public:
     ParseLogSrv(std::shared_ptr<Database> data) : _data(data){}
