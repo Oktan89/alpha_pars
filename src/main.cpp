@@ -31,12 +31,12 @@ int main()
     std::shared_ptr<Database> data = std::make_shared<Database>();  
     std::unique_ptr<IBaseParser> pars = std::make_unique<ParseLogSrv>(data);
     //data.reset();
-    pars->parse("*** [30/11/2021 15:36:21] опрос точки 33560 ( УКПГ-10 (ОРЭМ-2 оч.)) запущен ,порт TCP\n"
+    /*pars->parse("*** [30/11/2021 15:36:21] опрос точки 33560 ( УКПГ-10 (ОРЭМ-2 оч.)) запущен ,порт TCP\n"
     "*** точка опроса 190118 - след.опрос в \"29/11/2021 16:30:10\"\n"
     "*** [29/11/2021 16:02:43] опрос точки 335601 ( УКПГ-10 (ОРЭМ-2 оч.)) завершился с кодом 1\n"
 	"	опрос 11 завершился успешно, всего неудач 0\n");
     //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-    return 0;
+    return 0;*/
 
     auto askue = std::make_shared<threadsafe_queue<std::string>>();
     
@@ -49,10 +49,10 @@ int main()
         std::string test;
         for(auto run = logreader.start(askue, 500); run ; run = logreader.status())
         {
+           
            askue->wait_and_pop(test);
-           pcout{} <<" Map size: "<< askue->size() << "\n";
            pars->parse(test);
-           test.clear();
+           
         }
         
     }

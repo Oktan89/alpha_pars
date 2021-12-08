@@ -87,6 +87,7 @@ void ParseLogSrv::parse(const std::string& log)
             
         }
     }else {pcout{} << "[ParserLogSvr] Error Not find head log string\n";}
+    _record.clear();
 }
 
 //Содержит строка {опрос точки}?
