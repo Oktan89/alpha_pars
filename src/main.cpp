@@ -27,7 +27,14 @@ int main()
     #elif __linux__
        
     #endif
-
+    std::string log("опрос 11 завершился успешно, всего неудач 0");
+    const char s_ok[] = "успешно";
+    const char s_err[] = "с ошибками";
+    for(std::size_t i = 0; i < log.size(); ++i)
+    {
+        if(s_ok[i] == log[i]);
+    }
+   
     std::shared_ptr<Database> data = std::make_shared<Database>();  
     std::unique_ptr<IBaseParser> pars = std::make_unique<ParseLogSrv>(data);
     //data.reset();

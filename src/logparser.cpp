@@ -50,14 +50,22 @@ void ParseLogSrv::parse(const std::string& log)
                     {
                         askue.setTime(status_poll, timestamp);
                         std::vector<std::string> err;
-                        if(splitRecord(br, err, "\n\tопрос"))
+                        if(splitRecord(br, err, protocol.poll))
                         {
+                            
+                            ObjectPolling meter;
                             for(const auto &e : err)
                             {
+                                Meter m;
+                                if(auto [ok, poll] = is_Polling(e); ok)
+                                {
+                                   m.id = getId(e, poll);
+                                }else {pcout{} << "[ParserLogSvr] Error id polling\n"; break;}
+                                meter.meter.push_back(m);
                                 pcout{} << e <<"\n"; // Разбор строк опрос звершился успешно
                             }
+                            askue.setPollMeter(meter);                      
                         }else {pcout{} << "[ParserLogSvr] Error Not find info status poll\n";}
-                        
                     }
                     else if(status_poll == STATUSOBJECT::UNKNOWN)
                     {
@@ -89,6 +97,17 @@ void ParseLogSrv::parse(const std::string& log)
     _record.clear();
 }
 
+std::pair<bool, STATUSPOLL> ParseLogSrv::is_PollOKError(const std::string& log) const
+{
+   /* const char s_ok[] = "успешно";
+    const char s_err[] = "с ошибками";
+    for(std::size_t i = 0; i < log.size(); ++i)
+    {
+        if(s_ok[i] == log[i]);
+    }*/
+    log.size();
+    return std::make_pair(false, STATUSPOLL::POLL_ERROR);
+}
 //Содержит строка {опрос точки}?
 std::pair<bool, std::size_t> ParseLogSrv::is_pollingPoints(const std::string& log) const
 {   
@@ -104,6 +123,15 @@ std::pair<bool, std::size_t> ParseLogSrv::is_pointsPolling(const std::string &lo
     std::size_t pos = log.find(protocol.p_poll);
     if (log.npos != pos)
         return std::make_pair(true, (++pos)+std::strlen(protocol.p_poll));
+    return std::make_pair(false, pos);
+}
+
+//Содержит строка {опрос}?
+std::pair<bool, std::size_t> ParseLogSrv::is_Polling(const std::string &log) const
+{
+    std::size_t pos = log.find(protocol.poll);
+    if (log.npos != pos)
+        return std::make_pair(true, (++pos)+std::strlen(protocol.poll));
     return std::make_pair(false, pos);
 }
 
@@ -372,6 +400,11 @@ std::string ObjectAskue::getStatus_s() const
     return status;
 }
 
+void ObjectAskue::setPollMeter(const ObjectPolling& meter)
+{
+    _pollmeter = meter;
+}
+
 ObjectAskue::ObjectAskue(const ObjectAskue& object) :
  _id(object._id), _name_point(object._name_point), _interface(object._interface),
  _time(object._time), _status(object._status)
@@ -396,5 +429,6 @@ ObjectAskue& ObjectAskue::operator=(const ObjectAskue& other)
     _interface = other._interface;
     _time = other._time;
     _status = other._status;
+    _pollmeter = other._pollmeter;
     return *this;
 }

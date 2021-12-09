@@ -25,6 +25,27 @@ enum class STATUSOBJECT
     UNKNOWN
 };
 
+enum class STATUSPOLL
+{
+    POLL_OK,
+    POLL_ERROR
+};
+
+struct Meter
+{
+    int id; //Номер устройства
+    bool status_poll; //Опрошен или нет
+    int repit_poll; //количество поторов опроса
+    Meter() : id(-1), status_poll(true), repit_poll(0){} 
+};
+
+struct ObjectPolling
+{
+    STATUSPOLL status;
+    std::vector<Meter> meter;
+    ObjectPolling() : status(STATUSPOLL::POLL_OK) {}
+};
+
 //Структура времени в логах АЦ
 struct Time_stamp
 {
@@ -34,7 +55,7 @@ struct Time_stamp
     int hour;
     int min;
     int sec;
-    Time_stamp():day(), mon(), year(), hour(), min(), sec(){}
+    Time_stamp():day(0), mon(0), year(0), hour(0), min(0), sec(0){}
     friend std::ostream& operator<<(std::ostream& out, const Time_stamp& time);
 };
 
@@ -61,11 +82,12 @@ class ObjectAskue
     Interface _interface;
     ObjectTime _time;
     STATUSOBJECT _status;
+    ObjectPolling _pollmeter;
     mutable std::mutex _mutex;
     friend std::ostream& operator<<(std::ostream& out, const ObjectAskue& askue);
 public:
     ObjectAskue() : 
-    _id(), _name_point("unknown"), _interface(), _time(), _status(STATUSOBJECT::UNKNOWN) {}
+    _id(), _name_point("unknown"), _interface(), _time(), _status(STATUSOBJECT::UNKNOWN), _pollmeter() {}
     
     ObjectAskue(const ObjectAskue& object);
     
@@ -89,6 +111,8 @@ public:
     STATUSOBJECT getStatus() const;
     std::string getStatus_s() const;
 
+    void setPollMeter(const ObjectPolling& meter);
+
 };
 
 
@@ -108,6 +132,10 @@ class ParseLogSrv : public IBaseParser
     std::pair<bool, std::size_t> is_pollingPoints(const std::string& log) const;
 
     std::pair<bool, std::size_t> is_pointsPolling(const std::string& log) const;
+
+    std::pair<bool, std::size_t> is_Polling(const std::string& log) const;
+
+    std::pair<bool, STATUSPOLL> is_PollOKError(const std::string& log) const;
 
     //Вызввать только после is_pollingPoints или is_pointsPolling
     int getId(const std::string&log, std::size_t pos) const;
