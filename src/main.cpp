@@ -27,12 +27,32 @@ int main()
     #elif __linux__
        
     #endif
-    std::string log("опрос 11 завершился успешно, всего неудач 0");
+    std::string log("опрос 11 завершился с ошибками, всего неудач 0");
     const char s_ok[] = "успешно";
     const char s_err[] = "с ошибками";
-    for(std::size_t i = 0; i < log.size(); ++i)
+    int status = -1;
+    for(std::size_t i = 0, ok = 0, err = 0; i < log.size(); ++i)
     {
-        if(s_ok[i] == log[i]);
+        if(s_ok[ok] == log[i])
+        {
+            ++ok;
+        }
+        if(s_err[err] == log[i])
+        {
+            ++err;
+        }
+        if(ok == sizeof s_ok -1)
+        {
+            status = 0;
+            break;
+        }
+            
+        if(err == sizeof s_err -1)
+        {
+             status = 1;
+            break;
+        }
+            
     }
    
     std::shared_ptr<Database> data = std::make_shared<Database>();  
