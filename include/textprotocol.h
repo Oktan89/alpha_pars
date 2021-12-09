@@ -35,5 +35,5 @@ struct PotokolLogSrv
     //Следующий опрос: след.опрос
     const char* next_poll{"след.опрос"};
     //Завершен опрос: ntопрос
-    const char* poll{"\n\tопрос"};
+    const char* poll{"опрос "};
 };

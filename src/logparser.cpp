@@ -151,6 +151,8 @@ std::pair<bool, Meter> ParseLogSrv::is_PollOKError(const std::string& log) const
             {
                 start_index = i;
                 ++countdig;
+                 if (countdig == 2)
+                        meter.repit_poll = std::stoi(log.substr(start_index));
                 status = true;
             }
         }
@@ -163,13 +165,13 @@ std::pair<bool, Meter> ParseLogSrv::is_PollOKError(const std::string& log) const
                     end_index = i;
                     if (countdig == 1)
                         meter.id = std::stoi(log.substr(start_index, end_index - start_index));
-                    if (countdig == 2)
-                        meter.repit_poll = std::stoi(log.substr(start_index, end_index - start_index));
+                   
                     start_index = 0;
                     end_index = 0;
                 }
                 catch(...)
                 {
+                    pcout{} <<"Error stoi\n";
                    status = false;
                 }
             }
