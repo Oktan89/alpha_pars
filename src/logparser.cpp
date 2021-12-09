@@ -52,18 +52,16 @@ void ParseLogSrv::parse(const std::string& log)
                         std::vector<std::string> err;
                         if(splitRecord(br, err, protocol.poll))
                         {
-                            
                             ObjectPolling meter;
                             for(const auto &e : err)
                             {
-                                Meter m;
-                                if(auto [ok, poll] = is_Polling(e); ok)
+                                if(auto [ok, pollmeter] = is_PollOKError(e); ok)
                                 {
-                                   m.id = getId(e, poll);
-                                }else {pcout{} << "[ParserLogSvr] Error id polling\n"; break;}
-                                meter.meter.push_back(m);
-                                pcout{} << e <<"\n"; // Разбор строк опрос звершился успешно
+                                   meter.meter.push_back(pollmeter);
+                                   
+                                }else {pcout{} << "[ParserLogSvr] Error parse status poll meter\n"; break;}
                             }
+                            getStatusPollMeter(meter);
                             askue.setPollMeter(meter);                      
                         }else {pcout{} << "[ParserLogSvr] Error Not find info status poll\n";}
                     }
@@ -97,16 +95,87 @@ void ParseLogSrv::parse(const std::string& log)
     _record.clear();
 }
 
-std::pair<bool, STATUSPOLL> ParseLogSrv::is_PollOKError(const std::string& log) const
+//Проверяем все счетчики настатус ошибки и если была хоть одна то выстовляем общий статус объекта ERROR
+STATUSPOLL getStatusPollMeter(ObjectPolling& out_meter)
 {
-   /* const char s_ok[] = "успешно";
-    const char s_err[] = "с ошибками";
-    for(std::size_t i = 0; i < log.size(); ++i)
+    STATUSPOLL status(STATUSPOLL::POLL_OK);
+    for(const auto &m : out_meter.meter)
     {
-        if(s_ok[i] == log[i]);
-    }*/
-    log.size();
-    return std::make_pair(false, STATUSPOLL::POLL_ERROR);
+        if(!m.status_poll)
+            status = STATUSPOLL::POLL_ERROR;
+    }
+    out_meter.status = status;
+    return status;
+}
+// Разбор строк опрос звершился успешно
+std::pair<bool, Meter> ParseLogSrv::is_PollOKError(const std::string& log) const
+{
+    const char s_ok[] = "успешно";
+    const char s_err[] = "с ошибками";
+    Meter meter;
+    std::size_t start_index = 0;
+    std::size_t end_index = 0;
+    int countdig = 0;
+    bool status = false;
+    for(std::size_t i = 0, ok = 0, err = 0; i < log.size(); ++i)
+    {
+        if(s_ok[ok] == log[i])
+        {
+           ++ok;
+        }
+        else
+        {
+            if(ok == std::strlen(s_ok))
+            {
+                meter.status_poll = true;
+                status = true;
+            }
+            ok = 0;
+        }
+        if(s_err[err] == log[i])
+        {
+            ++err;
+        }
+        else
+        {
+            if(err == std::strlen(s_err))
+            {   
+                meter.status_poll =false;
+                status = true;
+            }
+            err = 0;
+        }
+        if(isdigit(log[i]))
+        {
+            if(start_index == 0)
+            {
+                start_index = i;
+                ++countdig;
+                status = true;
+            }
+        }
+        else
+        {
+            if(start_index != 0)
+            {
+                try
+                {
+                    end_index = i;
+                    if (countdig == 1)
+                        meter.id = std::stoi(log.substr(start_index, end_index - start_index));
+                    if (countdig == 2)
+                        meter.repit_poll = std::stoi(log.substr(start_index, end_index - start_index));
+                    start_index = 0;
+                    end_index = 0;
+                }
+                catch(...)
+                {
+                   status = false;
+                }
+            }
+        }
+    }
+    return std::make_pair(status, meter);
 }
 //Содержит строка {опрос точки}?
 std::pair<bool, std::size_t> ParseLogSrv::is_pollingPoints(const std::string& log) const
@@ -405,9 +474,16 @@ void ObjectAskue::setPollMeter(const ObjectPolling& meter)
     _pollmeter = meter;
 }
 
+ObjectPolling ObjectAskue::getPollMeter() const
+{
+    return _pollmeter;
+}
+
+
+
 ObjectAskue::ObjectAskue(const ObjectAskue& object) :
  _id(object._id), _name_point(object._name_point), _interface(object._interface),
- _time(object._time), _status(object._status)
+ _time(object._time), _status(object._status), _pollmeter(object._pollmeter)
 {
 
 }

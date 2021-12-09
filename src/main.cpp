@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <cstring>
 //#include <csignal>
 #include <filesystem>
 #ifdef _WIN32
@@ -27,41 +28,14 @@ int main()
     #elif __linux__
        
     #endif
-    std::string log("опрос 11 завершился с ошибками, всего неудач 0");
-    const char s_ok[] = "успешно";
-    const char s_err[] = "с ошибками";
-    int status = -1;
-    for(std::size_t i = 0, ok = 0, err = 0; i < log.size(); ++i)
-    {
-        if(s_ok[ok] == log[i])
-        {
-            ++ok;
-        }
-        if(s_err[err] == log[i])
-        {
-            ++err;
-        }
-        if(ok == sizeof s_ok -1)
-        {
-            status = 0;
-            break;
-        }
-            
-        if(err == sizeof s_err -1)
-        {
-             status = 1;
-            break;
-        }
-            
-    }
-   
+
     std::shared_ptr<Database> data = std::make_shared<Database>();  
     std::unique_ptr<IBaseParser> pars = std::make_unique<ParseLogSrv>(data);
     //data.reset();
     pars->parse("*** [30/11/2021 15:36:21] опрос точки 33560 ( УКПГ-10 (ОРЭМ-2 оч.)) запущен ,порт TCP\n"
     "*** точка опроса 190118 - след.опрос в \"29/11/2021 16:30:10\"\n"
     "*** [29/11/2021 16:02:43] опрос точки 335601 ( УКПГ-10 (ОРЭМ-2 оч.)) завершился с кодом 1\n"
-	"	опрос 11 завершился успешно, всего неудач 0\n");
+	"	опрос 11 завершился с ошибками, всего неудач 3\n");
     //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     return 0;
 

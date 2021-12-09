@@ -28,7 +28,7 @@ enum class STATUSOBJECT
 enum class STATUSPOLL
 {
     POLL_OK,
-    POLL_ERROR
+    POLL_ERROR,
 };
 
 struct Meter
@@ -112,6 +112,8 @@ public:
     std::string getStatus_s() const;
 
     void setPollMeter(const ObjectPolling& meter);
+    ObjectPolling getPollMeter() const;
+    
 
 };
 
@@ -135,7 +137,7 @@ class ParseLogSrv : public IBaseParser
 
     std::pair<bool, std::size_t> is_Polling(const std::string& log) const;
 
-    std::pair<bool, STATUSPOLL> is_PollOKError(const std::string& log) const;
+    std::pair<bool, Meter> is_PollOKError(const std::string& log) const;
 
     //Вызввать только после is_pollingPoints или is_pointsPolling
     int getId(const std::string&log, std::size_t pos) const;
@@ -160,3 +162,4 @@ public:
     
 };
 
+STATUSPOLL getStatusPollMeter(ObjectPolling& out_meter);
