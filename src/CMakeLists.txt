@@ -15,14 +15,18 @@ endif()
 
 add_executable(Alpha_pars ${SOURCES})
 
-target_include_directories(Alpha_pars PUBLIC ${MY_INCLUDE_DIR})
+
+target_link_libraries(Alpha_pars ${Boost_LYBRARIES})
+
+
+if(MINGW)
+    target_link_libraries(Alpha_pars ws2_32)
+endif()
 
 #Подключаем потоки
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
 target_link_libraries(Alpha_pars Threads::Threads)
-target_link_libraries(Alpha_pars ${Boost_LYBRARIES})
 
-if(MINGW)
-    target_link_libraries(Alpha_pars ws2_32)
-endif()
+target_include_directories(Alpha_pars PUBLIC ${MY_INCLUDE_DIR})
+
