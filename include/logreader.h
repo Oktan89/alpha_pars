@@ -51,7 +51,7 @@ public:
 
     Logreader(const Logreader &other) = delete;
 
-    Logreader& operator=(const Logerstatus& other) = delete;
+    Logreader& operator=(const Logreader& other) = delete;
 
     void intit(bool autopath = true);
 

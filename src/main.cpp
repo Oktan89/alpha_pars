@@ -22,7 +22,6 @@ extern "C" void handler(int signal)
 int main()
 {
     //std::signal(SIGINT, handler);
-
     #ifdef _WIN32
         ConsoleCP console(1251);
     #elif __linux__
@@ -74,7 +73,3 @@ int main()
         
     return 0;
 }
-
-      /* for(auto &file : std::filesystem::directory_iterator(path))
-            std::cout << file.path().filename().string() << '\n';
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));*/
